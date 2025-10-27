@@ -1,0 +1,103 @@
+/* announcement_manager.module.css */
+
+.managerContainer {
+    width: 100%;
+}
+.pageTitle {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+/* --- 1. Creation Form/Card --- */
+.creationCard {
+    background-color: var(--card-bg-color);
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.creationCard h2 {
+    color: var(--secondary-color);
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 5px;
+}
+.formGroup {
+    margin-bottom: 15px;
+}
+.formGroup label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #a0aec0;
+}
+.formGroup input[type="text"], 
+.formGroup textarea,
+.formGroup select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #4a5568;
+    background-color: #2d3748; /* Dark input background */
+    color: white;
+    border-radius: 4px;
+    resize: vertical;
+}
+.submitButton {
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+.submitButton:hover {
+    background-color: #4c6cb7;
+}
+
+/* --- 2. List of Announcements --- */
+.listContainer h2 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+.announcementItem {
+    background-color: #1a202c; /* Slightly darker than card background */
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border-left: 5px solid var(--secondary-color); /* Highlight color */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.announcementContent h3 {
+    margin-top: 0;
+    color: white;
+}
+.announcementContent p {
+    color: #a0aec0;
+    font-size: 0.9rem;
+}
+.metaData {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-top: 5px;
+}
+.actionButtons button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+.editButton {
+    background-color: #ed8936; /* Orange */
+    color: white;
+}
+.deleteButton {
+    background-color: #e53e3e; /* Red */
+    color: white;
+}

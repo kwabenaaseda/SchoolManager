@@ -1,0 +1,201 @@
+/* student_profile.module.css */
+
+.profileContainer {
+    width: 100%;
+    /* Dashboard manager provides padding, so we just focus on the layout inside */
+}
+
+/* --- Header --- */
+.profileHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+.quickActions {
+    display: flex;
+    gap: 10px;
+}
+.headerButton {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+.headerButton:hover {
+    opacity: 0.9;
+}
+
+/* --- Main Layout --- */
+.mainProfileLayout {
+    display: grid;
+    grid-template-columns: 300px 1fr; /* Fixed width for left column, rest for right */
+    gap: 20px;
+}
+.card {
+    background-color: var(--card-bg-color); 
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); 
+}
+
+/* --- Left Column (Bio Card) --- */
+.bioCard {
+    text-align: center;
+    height: fit-content; /* Only take up necessary height */
+}
+.profilePic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: var(--primary-color); /* Placeholder color */
+    margin: 0 auto 15px;
+    border: 3px solid var(--secondary-color);
+}
+.profileName {
+    font-size: 1.5rem;
+    color: var(--text-color);
+    margin-bottom: 5px;
+}
+.profileId {
+    font-size: 0.9rem;
+    color: #a0aec0;
+    margin-bottom: 15px;
+}
+.divider {
+    border: 0;
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 15px 0;
+}
+.contactInfo p {
+    font-size: 1rem;
+    color: var(--text-color);
+    margin-bottom: 8px;
+    text-align: left;
+}
+.guardianSection {
+    margin-top: 20px;
+    padding: 0; /* Override padding from imported component */
+    border: none;
+    text-align: left;
+}
+.guardianName { font-weight: 600; }
+.guardianRelation { font-size: 0.9rem; color: var(--primary-color); }
+.guardianContact { font-size: 0.9rem; color: #a0aec0; }
+
+
+/* --- Right Column (Tabbed Content) --- */
+.tabBar {
+    display: flex;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 20px;
+}
+.tabButton {
+    background-color: transparent;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #a0aec0;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s;
+}
+.tabButton:hover {
+    color: var(--text-color);
+}
+.activeTab {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.tabContent {
+    min-height: 400px;
+}
+
+/* Academic Tab Content Styling */
+.tabContentGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+}
+.metricItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dotted #2d3748;
+}
+.metricLabel {
+    color: #a0aec0;
+}
+.metricValue {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+.courseList {
+    list-style: none;
+    padding: 0;
+}
+.courseItem {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+.courseGrade {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+.placeholder {
+    padding: 20px;
+    color: #a0aec0;
+    background-color: #1a202c;
+    border-radius: 8px;
+}
+
+
+/* --- Responsiveness for Student Profile --- */
+@media (max-width: 1024px) {
+    /* Stack the bio card and the main content on top of each other */
+    .mainProfileLayout {
+        grid-template-columns: 1fr; /* Single column */
+    }
+    .profileHeader {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .quickActions {
+        margin-top: 10px;
+    }
+    .tabContentGrid {
+        grid-template-columns: 1fr; /* Stack the academic metrics and course list */
+    }
+}
+
+@media (max-width: 600px) {
+    .tabBar {
+        /* Allow tabs to wrap on smaller screens */
+        flex-wrap: wrap; 
+        border-bottom: none;
+    }
+    .tabButton {
+        /* Adjust padding for smaller buttons */
+        padding: 8px 10px; 
+    }
+}

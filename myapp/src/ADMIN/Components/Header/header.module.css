@@ -1,0 +1,57 @@
+/* Components/Header/header.module.css */
+
+.Header {
+  border: 0.2px solid var(--border-line); 
+  border-top: none;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  height: 80px;
+  display: flex; 
+  width: 100%;
+  align-items: center;
+  padding: 4px 20px;
+  justify-content: space-between; 
+  background-color: var(--bg-card); 
+}
+
+/* Menu Toggle Button Styling */
+.menuToggleButton {
+    background: var(--accent-primary);
+    color: var(--text-main);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: block; 
+    transition: opacity 0.3s;
+}
+
+/* 🔑 FIX 2: Hides the menu button when the side menu is open, solving congestion and preventing visual clutter. */
+.menuButtonHidden {
+    opacity: 0;
+    pointer-events: none; /* Disables click interaction */
+}
+
+
+/* Theme Button Styling */
+.themeToggleButton {
+    background: none;
+    color: var(--text-main);
+    border: 1px solid var(--accent-primary);
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+.themeToggleButton:hover {
+    background-color: var(--border-line);
+}
+
+.profile {
+    color: var(--accent-secondary);
+    font-weight: bold;
+}

@@ -1,0 +1,139 @@
+/* index.css - FINAL SYNCHRONIZED THEME & LAYOUT */
+
+/* --- 1. DEFAULT (DARK) THEME VARIABLES --- */
+:root {
+    --bg-main: #0b111e;     /* Deep dark blue/black for the body */
+    --bg-card: #1a202c;     /* Slightly lighter dark blue for cards/containers */
+    --text-main: #e2e8f0;   /* Light gray for main text */
+    --accent-primary: #4299e1; /* Bright blue for accents and links */
+    --accent-secondary: #38a169; /* Teal/Green for success/secondary accents */
+    --border-line: #2d3748; /* Dark gray for subtle borders */
+}
+
+/* --- 2. LIGHT THEME OVERRIDE (Toggle this class on <html>) --- */
+.light-theme {
+    --bg-main: #ffffff; 
+    --bg-card: #f7fafc; 
+    --text-main: #1a202c;
+    --accent-primary: #3182ce;
+    --accent-secondary: #2d9460;
+    --border-line: #e2e8f0;
+}
+
+/* --- 3. GLOBAL RESET & VARIABLE APPLICATION --- */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: Garamond, Arial, Helvetica, sans-serif;
+    scrollbar-width: none;
+    scrollbar-color: var(--border-line) transparent;
+}
+
+/* Apply theme variables to BODY */
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    transition: background-color 0.3s;
+}
+.searchContainer {
+    border: 1px solid var(--border-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 330px;
+    max-height: 50px;
+    min-height: 40px;
+    border-radius: 7px;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: var(--card-bg-color);
+}
+.searchButton {
+    border: none;
+    width: 11%;
+    border-radius: 7px 0 0 7px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 6px;
+    cursor: pointer;
+    background-color: transparent;
+    color: var(--primary-color); /* Added color for search icon/text */
+}
+.search {
+    width: 100%;
+    padding: 11px;
+    border-radius: 0 7px 7px 0;
+    border: none;
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+}
+.search::placeholder {
+    color: #a0aec0;
+}
+.search:focus-visible {
+    color: var(--text-color);
+    border: 1px solid var(--primary-color);
+    outline: none;
+}
+/* Apply theme variables to core components */
+.searchContainer {
+    border: 1px solid var(--border-line);
+    background-color: var(--bg-card); 
+}
+.searchButton { color: var(--accent-primary); }
+.search {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+}
+.search:focus-visible {
+    color: var(--text-main);
+    border: 1px solid var(--accent-primary);
+}
+
+/* SIDE MENU (Fixed Position - 250px) */
+.sideMenu {
+    border-right: 1px solid var(--border-line);
+    background-color: var(--bg-card); 
+    color: var(--text-main); 
+    /* ... rest of sideMenu styles ... */
+    max-width: 250px; 
+    min-width: 250px;
+    position: fixed;
+    z-index: 1000; 
+    /* Menu visibility classes are critical */
+}
+.menuHidden { transform: translateX(-250px); }
+.menuVisible { transform: translateX(0); }
+
+/* MAIN CONTENT LAYOUT (CRITICAL FOR MOVING SCREEN) */
+main {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    transition: margin-left 0.3s, width 0.3s;
+}
+.menuOpen {
+    width: calc(100% - 250px);
+    margin-left: 250px; /* Shifts content away from 250px menu */
+}
+.menuClosed {
+    width: 100%;
+    margin-left: 0;
+}
+.display {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+}
+.display {
+    width: 100%;
+    display: flex;
+    flex-direction: column; 
+    min-height: calc(100dvh - 80px - 45px); 
+    padding: 20px;
+    background-color: var(--main-bg-color);
+    color: var(--text-color);
+    overflow-y: auto;
+}
+/* Header and Footer modules should also use var(--bg-card) */

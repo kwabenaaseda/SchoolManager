@@ -1,0 +1,33 @@
+/* footer.module.css */
+.footer {
+  /* Making the footer dark and subtle */
+  background-color: var(--card-bg-color);
+  color: #a0aec0; /* Lighter text color */
+  border: none; /* Remove border */
+  display: flex;
+  width: 100%;
+  justify-content: space-between; /* Space out the two sections */
+  align-items: center;
+  height: 45px;
+  font-weight: 500; /* Regular weight */
+  font-size: small;
+  padding: 0 20px; /* Add padding on the sides */
+  border-top: 1px solid var(--border-color); /* Subtle separator line */
+}
+
+/* Adjusting the list styles */
+.footer ul {
+  border: none;
+  display: inline-flex;
+  gap: 20px; /* Use gap instead of fixed width */
+  list-style: none;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
+.footer li {
+  cursor: pointer;
+}
+.footer li:hover {
+  color: var(--primary-color);
+}
