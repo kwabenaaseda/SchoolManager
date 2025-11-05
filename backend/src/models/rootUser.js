@@ -3,20 +3,14 @@ import mongoose from "mongoose";
 const RootUser = new mongoose.Schema(
   {
     associated_user_id: {
-      type: ObjectId,
+      type: mongoose.Schema.Types.ObjectId, // Point to the owner in the Users
       required: true,
     },
     associated_finance_id: {
-      type: ObjectId,
-      required: true,
-    },
-    associated_task_id: {
-      type: ObjectId,
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,
     },
     associated_announcement_id: {
-      type: ObjectId,
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,
     },
     is_active: {
       type: Boolean,

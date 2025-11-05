@@ -22,5 +22,6 @@ app.use(cors({
     methods:['GET','POST','DELETE','PUT'],
     credentials:true
 }))
+app.use(express.json())
 
 export default app;

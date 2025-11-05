@@ -101,8 +101,11 @@ body {
     max-width: 250px; 
     min-width: 250px;
     position: fixed;
-    z-index: 1000; 
+    z-index: 1000;
+    max-height: 100dvh;
+    min-height: 98dvh; 
     /* Menu visibility classes are critical */
+    overflow-y: auto;
 }
 .menuHidden { transform: translateX(-250px); }
 .menuVisible { transform: translateX(0); }

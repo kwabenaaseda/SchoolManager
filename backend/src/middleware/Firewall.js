@@ -1,6 +1,6 @@
 import { VerifyAccessSign } from "../utils/auth.js";
-import { USERMODEL } from "../models/user.js";
-
+import {User} from '../models/users/User.js';
+import {Tenant} from '../models/Tenant.js'
 const FireWall = async (req, res, next) => {
   let token;
   if (
@@ -17,11 +17,18 @@ const FireWall = async (req, res, next) => {
   }
   try {
     const decoded = VerifyAccessSign(token);
-    const user = await USERMODEL.findOne({ _id: decoded.sub }) 
+    const Tenant_user = await Tenant.findOne({_id:decoded.ref})
+    const user = await User.findOne({ _id: decoded.sub }) 
+    if (!Tenant_user) {
+      res.status(401).json({
+        success: false,
+        message: "Access Denied. Contact your Administrator",
+      });
+    }
     if (!user) {
       res.status(401).json({
         success: false,
-        message: "User Not Found!",
+        message: "Access Denied. User Not Found!",
       });
     }
     req.user = user;

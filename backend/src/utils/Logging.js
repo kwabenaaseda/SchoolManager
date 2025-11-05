@@ -13,6 +13,11 @@ export const ErrorHandler =
         "Developer Notice: please provide documentation for logging and debugging"
       );
     }
+    if(!_response){
+      return console.log(
+        "Developer Notice: please provide Response identifier for Automated Response Functionality to work"
+      );
+    }
     const ForDev = {
       Error: `
         ${
@@ -43,3 +48,27 @@ export const ErrorHandler =
       },
     }
   };
+
+export const SuccesHandler = (fn)=>({
+  _response,
+  statusCode,
+  adjustment,
+  successMessage,
+})=>{
+if(!_response){
+      return console.log(
+        "Developer Notice: please provide Response identifier for Automated Response Functionality to work"
+      );
+    }
+  const ForUser={
+    status: statusCode?statusCode:200,
+      message: `Server Success: ${successMessage?successMessage:"Operation Successful !"}`,
+      success:true
+  }
+  return{
+    UserResponse:()=>{
+      _response.status(statusCode?statusCode:200)({...ForUser,...adjustment})
+      return
+    }
+  }
+}

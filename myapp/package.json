@@ -10,9 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@netlify/vite-plugin": "^2.7.7",
+    "axios": "^1.13.0",
+    "fetch": "^1.1.0",
+    "formik": "^2.4.6",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.4"
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.4",
+    "redux": "^5.0.1",
+    "yup": "^1.7.1",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
