@@ -1,4 +1,4 @@
-import { ErrorHandler } from "../utils/Logging";
+import { ErrorHandler } from "../../utils/Logging";
 
 //general Auths
 export const RenewToken = async (req, res) => {
