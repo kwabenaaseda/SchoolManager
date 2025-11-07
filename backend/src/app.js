@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import Systemrouter from "./routes/System/system.routes.js";
 import tenantrouter from "./routes/Tenants/tenants.routes.js";
+import DevRoutes from "./routes/Dev/Dev.routes.js";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
 import swaggerOptions from "./config/swagger.config.js";
@@ -34,6 +35,7 @@ app.use(
 app.use(express.json());
 app.use("/api/v1/system", Systemrouter);
 app.use("/api/v1/tenant", tenantrouter);
+app.use("/api/d-e-v/v",DevRoutes)
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec))
 
 export default app;
