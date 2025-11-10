@@ -8,15 +8,12 @@ const TenantSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    subdomain: {
-      type: String,
-      unique: true,
-    },
+
     // schoolone.yoursystem.com
     ownerId: {
       type: mongoose.Schema.Types.ObjectId, //Point to the Owner in RootUser
       ref: "User",
-      required: true,
+      required: false,
     }, // The super admin user
     subscriptionPlan: {
       type: String,

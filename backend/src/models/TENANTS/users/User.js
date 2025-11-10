@@ -12,6 +12,7 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Tenant",
       required: true,
+      unique:true
     },
 
     // 🔑 THE ACCESS CONTROL LINKS

@@ -1,8 +1,17 @@
 // /src/routes/system.routes.js
-import express from 'express'
-const Systemrouter = express.Router()
-import Firewall from '../../middleware/Firewall.js'
-import { } from '../../controllers/System/SystemUserManager.controller.js'
+import express from "express";
+const Systemrouter = express.Router();
+import Firewall from "../../middleware/Firewall.js";
+import {
+  Create_New_User,
+  Login,
+  Update_User,
+  Delete_User,
+  Refresh_Token,
+  Get_User_Profile,
+  List_System_Users,
+} from "../../controllers/System/SystemUserManager.controller.js";
+import { Get_System_Health } from "../../controllers/System/SystemHealth_Audit.controller.js";
 // -------------------
 // START SWAGGER DOCUMENTATION - SYSTEM ROUTES
 // -------------------
@@ -67,8 +76,8 @@ import { } from '../../controllers/System/SystemUserManager.controller.js'
  *       409:
  *         description: Tenant domain already exists
  */
-Systemrouter.post('/tenant', (req, res) => {
-    res.send({ message: "SYSTEM: Create new Tenant and initial RootUser" });
+Systemrouter.post("/tenant", (req, res) => {
+  res.send({ message: "SYSTEM: Create new Tenant and initial RootUser" });
 });
 
 /**
@@ -125,8 +134,8 @@ Systemrouter.post('/tenant', (req, res) => {
  *                         type: string
  *                         format: date-time
  */
-Systemrouter.get('/tenants', (req, res) => {
-    res.send({ message: "SYSTEM: List all Tenants" });
+Systemrouter.get("/tenants", (req, res) => {
+  res.send({ message: "SYSTEM: List all Tenants" });
 });
 
 /**
@@ -149,8 +158,10 @@ Systemrouter.get('/tenants', (req, res) => {
  *       404:
  *         description: Tenant not found
  */
-Systemrouter.get('/tenant/:tenantId', (req, res) => {
-    res.send({ message: `SYSTEM: Get detailed status for Tenant ${req.params.tenantId}` });
+Systemrouter.get("/tenant/:tenantId", (req, res) => {
+  res.send({
+    message: `SYSTEM: Get detailed status for Tenant ${req.params.tenantId}`,
+  });
 });
 
 /**
@@ -193,8 +204,8 @@ Systemrouter.get('/tenant/:tenantId', (req, res) => {
  *       404:
  *         description: Tenant not found
  */
-Systemrouter.put('/tenant/:tenantId/config', (req, res) => {
-    res.send({ message: `SYSTEM: Update Tenant configuration` });
+Systemrouter.put("/tenant/:tenantId/config", (req, res) => {
+  res.send({ message: `SYSTEM: Update Tenant configuration` });
 });
 
 /**
@@ -233,8 +244,10 @@ Systemrouter.put('/tenant/:tenantId/config', (req, res) => {
  *       404:
  *         description: Tenant not found
  */
-Systemrouter.put('/tenant/:tenantId/status', (req, res) => {
-    res.send({ message: `SYSTEM: Update Tenant subscription/operational status` });
+Systemrouter.put("/tenant/:tenantId/status", (req, res) => {
+  res.send({
+    message: `SYSTEM: Update Tenant subscription/operational status`,
+  });
 });
 
 /**
@@ -267,8 +280,8 @@ Systemrouter.put('/tenant/:tenantId/status', (req, res) => {
  *       404:
  *         description: Tenant not found
  */
-Systemrouter.post('/maintenance-mode', (req, res) => {
-    res.send({ message: "SYSTEM: Place a tenant into maintenance mode" });
+Systemrouter.post("/maintenance-mode", (req, res) => {
+  res.send({ message: "SYSTEM: Place a tenant into maintenance mode" });
 });
 
 // ====================================================
@@ -286,9 +299,19 @@ Systemrouter.post('/maintenance-mode', (req, res) => {
  *       200:
  *         description: List of system users retrieved successfully
  */
-Systemrouter.get('/system-users', (req, res) => {
-    res.send({ message: "SYSTEM: List all System Users (RootUsers)" });
-});
+Systemrouter.get("/system-users", Firewall, List_System_Users);
+/**
+ * @swagger
+ * /system-user/{userid}:
+ *   get:
+ *     summary: Get list of all system-level users (RootUsers)
+ *     tags: [System User Management]
+ *     description: Retrieves all system-level users with their roles and access levels
+ *     responses:
+ *       200:
+ *         description: List of system users retrieved successfully
+ */
+Systemrouter.get("/system-user/:userId", Firewall, Get_User_Profile);
 
 /**
  * @swagger
@@ -332,13 +355,11 @@ Systemrouter.get('/system-users', (req, res) => {
  *       409:
  *         description: User already exists
  */
-Systemrouter.post('/system-user/create', (req, res) => {
-    res.send({ message: "SYSTEM: Create a new System User" });
-});
+Systemrouter.post("/system-user/create", Create_New_User);
 
 /**
  * @swagger
- * /system-user/{userId}:
+ * /system-user/ed/{userId}:
  *   put:
  *     summary: Update system user's role, status, or access
  *     tags: [System User Management]
@@ -372,9 +393,45 @@ Systemrouter.post('/system-user/create', (req, res) => {
  *       404:
  *         description: System user not found
  */
-Systemrouter.put('/system-user/:userId', (req, res) => {
-    res.send({ message: "SYSTEM: Update System User details/role" });
-});
+Systemrouter.put("/system-user/ed/:userId", Firewall, Update_User);
+
+/**
+ * @swagger
+ * /system-user/del/{userId}:
+ *   put:
+ *     summary: Delete system user
+ *     tags: [System User Management]
+ *     description: Deletes System User
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the system user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               role:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive, suspended]
+ *               permissions:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       200:
+ *         description: System user Deleted successfully
+ *       404:
+ *         description: System user not found
+ */
+Systemrouter.put("/system-user/del/:userId", Firewall, Delete_User);
 
 // ====================================================
 // C. HEALTH & AUDIT
@@ -416,9 +473,7 @@ Systemrouter.put('/system-user/:userId', (req, res) => {
  *                         version:
  *                           type: string
  */
-Systemrouter.get('/system-health', (req, res) => {
-    res.send({ message: "SYSTEM: Get health check status" });
-});
+Systemrouter.get("/system-health",Firewall, Get_System_Health);
 
 // ====================================================
 // D. AUTHENTICATION
@@ -469,9 +524,7 @@ Systemrouter.get('/system-health', (req, res) => {
  *       401:
  *         description: Invalid Credentials or User Not Found.
  */
-Systemrouter.post('/system-auth/login', (req, res) => {
-    res.send({ message: "System User logged in successfully.", accessToken: "...", refreshToken: "..." });
-});
+Systemrouter.post("/system-auth/login", Login);
 
 /**
  * @swagger
@@ -509,9 +562,7 @@ Systemrouter.post('/system-auth/login', (req, res) => {
  *       401:
  *         description: Invalid or expired refresh token
  */
-Systemrouter.post('/system-auth/refresh', (req, res) => {
-    res.send({ message: "Access Token refreshed.", accessToken: "newAccessToken" });
-});
+Systemrouter.post("/system-auth/refresh", Firewall, Refresh_Token);
 
 // -------------------
 // END SWAGGER DOCUMENTATION - SYSTEM ROUTES

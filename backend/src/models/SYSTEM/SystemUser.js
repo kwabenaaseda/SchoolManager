@@ -5,7 +5,8 @@ import bcryptjs from "bcryptjs";
 const SystemUserSchema = new mongoose.Schema(
   {
     // NO tenantId here!
-    username: { type: String, required: true },
+    first_name: { type: String, required: true },
+    surname: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     
@@ -13,8 +14,14 @@ const SystemUserSchema = new mongoose.Schema(
     platform_role: { 
       type: String, 
       required: true,
-      enum: ["SuperAdmin", "PlatformFinance", "PlatformEngineer"], 
+      enum: ["SuperAdmin", "PlatformFinance", "PlatformEngineer","Pending"], 
     },
+    associated_rootuser_id: {
+          type: mongoose.Schema.Types.ObjectId, // Your personal login ID (from User model)
+          ref: "User",
+          required: false,
+          unique: true, // Only one RootUser document per associated user
+        },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }

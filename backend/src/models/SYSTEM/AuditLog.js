@@ -1,4 +1,4 @@
-// AuditLog.js (The System Tracking/Auditing Model)
+// models/SYSTEM/AuditLog.js (The System Tracking/Auditing Model)
 import mongoose from "mongoose";
 
 const AuditLogSchema = new mongoose.Schema(
@@ -33,26 +33,20 @@ const AuditLogSchema = new mongoose.Schema(
     tenant_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Tenant",
-      required: true,
+      required: false, // <-- FIX: Made optional to support platform-level actions
     },
     
     // 4. WHAT WAS AFFECTED?
     target_resource: {
-      model_name: { type: String, required: true }, // e.g., "STUDENT_MODEL"
+      model_name: { type: String, required: true }, // e.g., "STUDENT_MODEL", "SYSTEM_USER_MODEL"
       document_id: { type: mongoose.Schema.Types.ObjectId }, // The ID of the document affected
     },
 
     // 5. THE DATA (Optional - for high security)
-    // Note: Use this only for critical updates, as it is HUGE
     changes: {
       type: mongoose.Schema.Types.Mixed, // Stores the 'before' and 'after' data (e.g., { old_name: "Tim", new_name: "Timothy" })
     },
-    
-    // 6. WHEN & WHERE (The Metadata)
-    timestamp: { type: Date, default: Date.now, required: true },
-    ip_address: { type: String }, // The user's connection IP address
   },
-  // We use indexes here (in the application logic) to make queries by tenant_id and timestamp very fast.
   { timestamps: true }
 );
 
