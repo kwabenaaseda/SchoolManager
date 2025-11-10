@@ -4,12 +4,12 @@ import { Logger } from "../utils/Logging.js";
 import { LogSystemEvent } from "../utils/HealthService.js"; // <-- NEW IMPORT
 
 // A function to connect to your MongoDB
-export const connectDB = async () => {
+const connectDB = async () => {
   const startTime = Date.now();
   const dbUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/my_system";
 
   try {
-    Logger.info("Database", `Attempting connection to MongoDB at: ${dbUri}`);
+    Logger.info("Database", `Attempting connection to MongoDB`);
     
     const conn = await mongoose.connect(dbUri);
 
@@ -59,3 +59,5 @@ mongoose.connection.on('disconnected', async () => {
         message: "MongoDB connection lost unexpectedly. Attempting reconnection.",
     });
 });
+
+export default connectDB

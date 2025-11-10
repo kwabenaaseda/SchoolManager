@@ -14,6 +14,7 @@ const RootUser = new mongoose.Schema(
     },
     is_active: {
       type: Boolean,
+      default: true
     },
     last_login: {
       type: Date,
@@ -22,5 +23,5 @@ const RootUser = new mongoose.Schema(
   { timestamps: true }
 );
 
-const OWNER = mongoose.model("ROOTUSER", RootUser);
-export default { OWNER };
+const OWNER = mongoose.model("Root_User", RootUser);
+export default  OWNER ;

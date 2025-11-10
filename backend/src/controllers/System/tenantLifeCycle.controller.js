@@ -9,14 +9,15 @@ import {
 
 // --- Import All Relevant Models for Tenant Setup ---
 import Tenant from "../../models/TENANTS/Tenant.js";
-import SystemUser from "../../models/SYSTEM/SystemUser.js";
-import RootUser from "../../models/SYSTEM/RootUser.js";
+import User from "../../models/TENANTS/users/User.js";
+import Root_User from "../../models/TENANTS/rootUser.js";
 import TenantConfig from "../../models/TENANTS/TenantConfig.js"; // For configuration setup
 import GradingSystem from "../../models/TENANTS/Components/GradingSystem.js"; // For default rules
 import MainFinance from "../../models/TENANTS/finance/Main.Finance.js"; // For core finance
 import Announcement from "../../models/TENANTS/Announcement/Announcement.js"; // For initial announcement
 import GeneralContent from "../../models/TENANTS/Components/GeneralContent.js"; // For initial content
 import Permission from "../../models/TENANTS/Permission.js"; // For initial Admin role permissions
+import  STAFF  from "../../models/TENANTS/users/Staff.User.js";
 
 /**
  * ===============================================================
@@ -28,17 +29,20 @@ import Permission from "../../models/TENANTS/Permission.js"; // For initial Admi
 const _Create_New_Tenant = async (req, res) => {
   const {
     tenantName,
-   
+    ownerPhone,
     ownerFirstName,
     ownerSurname,
     ownerEmail,
     ownerPassword,
+    ownerGender,
+    ownerDOB,
+    subscriptionPlan
   } = req.body;
 
   Logger.info(_Create_New_Tenant.name, `Initiating new tenant creation `);
 
   // --- 1. Basic Validation ---
-  if ( !ownerEmail || !ownerPassword) {
+  if ( !ownerEmail || !ownerPassword || !ownerPhone) {
     // If any critical field is missing, throw an error.
     throw {
       statusCode: 400,
@@ -54,15 +58,15 @@ const _Create_New_Tenant = async (req, res) => {
   try {
     // --- 3. Pre-flight Checks (Existence Check) ---
     // Ensure the subdomain and email are not already in use across the entire platform
-    const existingTenant = await Tenant.findOne({ subdomain: subdomain }).session(session);
+    const existingTenant = await Tenant.findOne({ name:tenantName }).session(session);
     if (existingTenant) {
       throw {
         statusCode: 409,
-        message: `Subdomain '${subdomain}' is already taken.`,
+        message: `School-Name '${tenantName}' is already taken.`,
         name: "ConflictError",
       };
     }
-    const existingUser = await SystemUser.findOne({ email: ownerEmail }).session(session);
+    const existingUser = await User.findOne({ email: ownerEmail }).session(session);
     if (existingUser) {
       throw {
         statusCode: 409,
@@ -78,46 +82,69 @@ const _Create_New_Tenant = async (req, res) => {
       [
         {
           name: tenantName,
-          subdomain: subdomain.toLowerCase(),
-          // ownerId will be updated later with the SystemUser's ID
+          subscriptionPlan:subscriptionPlan
+          // ownerId will be updated later with the User's ID
         },
       ],
       { session: session }
     );
     const tenantId = newTenant[0]._id; // Get the newly created ID
 
-    // 4b. Create the SystemUser (The Owner/Admin's Login)
-    const newSystemUser = await SystemUser.create(
+    // 4b. Create the User (The Owner/Admin's Login)
+    const newUser = await User.create(
       [
         {
-          first_name: ownerFirstName,
-          surname: ownerSurname,
+          username:ownerSurname+" "+ownerFirstName,
           email: ownerEmail,
-          password: ownerPassword, // The pre-save hook in SystemUser.js will hash this
-          platform_role: "SuperAdmin", // Grant the top-level role
-          // The SystemUser model is for platform-level access, not tenant-level
+          password: ownerPassword, // The pre-save hook in User.js will hash this
+         role: "OWNER", // Grant the top-level role
+          tenantId:tenantId
         },
       ],
       { session: session }
     );
-    const systemUserId = newSystemUser[0]._id;
+    const UserId = newUser[0]._id;
 
     // 4c. Create the RootUser Link (The Bridge)
-    // This links the new SystemUser to the concept of a Tenant Owner
-    await RootUser.create(
+    // This links the new User to the concept of a Tenant Owner
+   const rootUsers =  await Root_User.create(
       [
         {
-          associated_user_id: systemUserId,
+          associated_user_id:UserId,
+          
           // RootUser does not need tenantId as it's a global link, but it's often a good audit field.
         },
       ],
       { session: session }
     );
+    const RootUserId = rootUsers[0]._id
 
     // 4d. Update Tenant with OwnerId
-    newTenant[0].ownerId = systemUserId;
+    newTenant[0].ownerId = RootUserId;
     await newTenant[0].save({ session: session });
 
+    // 4e. Create the Staff data for the Owner. Owners are thier first Staff members
+    const StaffUSer = await STAFF.create([
+      {
+        user_id:UserId,
+        school_id:tenantId,
+        firstname:ownerFirstName,
+        lastname:ownerSurname,
+        date_of_birth:ownerDOB,
+        gender:ownerGender,
+        contact_info:{
+          phone:ownerPhone,
+          email:ownerEmail,
+        },
+        job_details:{
+          job_role:'OWNER'
+        }
+
+      }
+    ])
+    const StaffId = StaffUSer[0]._id
+    newUser[0].staffId = StaffId
+    await newUser[0].save({session:session})
 
     // --- 5. INITIALIZATION STEPS (Setting up the new school's environment) ---
 
@@ -163,22 +190,22 @@ const _Create_New_Tenant = async (req, res) => {
         tenant_id: tenantId,
         header: "Welcome to your new School Platform!",
         content: "This is your first default announcement. The system is ready to go!",
-        from_user_id: systemUserId,
+        from_user_id: UserId,
         target_role: "All"
       }
     ], { session: session });
 
     // --- 6. Commit Transaction ---
     await session.commitTransaction(); // 🎉 Everything succeeded! Save all changes!
-    Logger.info(_Create_New_Tenant.name, `Tenant ${subdomain} and RootUser ${systemUserId} successfully created and committed.`);
+    Logger.info(_Create_New_Tenant.name, `Tenant ${tenantName} and RootUser ${UserId} successfully created and committed.`);
     
     // --- 7. Send Success Response ---
     return sendSuccessResponse(res, {
       statusCode: 201,
-      successMessage: `Tenant '${tenantName}' with subdomain '${subdomain}' created successfully.`,
+      successMessage: `Tenant '${tenantName}' created successfully.`,
       data: {
         tenantId: tenantId,
-        ownerId: systemUserId,
+        ownerId: UserId,
         ownerEmail: ownerEmail,
       },
     });
@@ -186,7 +213,7 @@ const _Create_New_Tenant = async (req, res) => {
   } catch (error) {
     // --- 8. Abort Transaction on Error ---
     await session.abortTransaction(); // ❌ Something failed! Undo all changes!
-    Logger.error(_Create_New_Tenant.name, `Tenant creation failed for ${subdomain}. Transaction aborted.`, error);
+    Logger.error(_Create_New_Tenant.name, `Tenant creation failed for ${tenantName}. Transaction aborted.`, error);
     
     // Use the error handler utility to respond
     sendErrorResponse(res, error, _Create_New_Tenant.name);

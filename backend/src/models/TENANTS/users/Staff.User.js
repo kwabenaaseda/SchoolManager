@@ -10,20 +10,20 @@ const StaffModel = new mongoose.Schema(
     firstname: { type: String, required: true }, //
     lastname: { type: String, required: true }, //
     date_of_birth: { type: Date, required: true }, //
-    gender: { type: String, required: true }, //
+    gender: { type: String, required: false, default:'MR' }, //
     picture_url: { type: String }, //
 
     // Job Details remain nested for logical grouping
     job_details: {
       job_role: { type: String, required: true }, //
-      start_date: { type: Date, required: true }, //
+      start_date: { type: Date, required: false }, //
     },
     
     // Contact Info remains nested and required
     contact_info: {
       phone: { type: String, required: true }, //
       email: { type: String, required: true }, //
-      address: { type: String, required: true }, //
+      address: { type: String, required: false }, //
     },
     
     // Payroll Info remains nested
@@ -45,4 +45,4 @@ const StaffModel = new mongoose.Schema(
 );
 
 const STAFF = mongoose.model("STAFF_MODEL", StaffModel);
-export { STAFF };
+export default STAFF ;

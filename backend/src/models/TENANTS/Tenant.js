@@ -17,7 +17,7 @@ const TenantSchema = new mongoose.Schema(
     }, // The super admin user
     subscriptionPlan: {
       type: String,
-      default: "Standard",
+      default: "standard",
     },
     status: {
       type: String,

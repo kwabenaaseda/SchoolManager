@@ -5,7 +5,7 @@ const UserSchema = new mongoose.Schema(
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true }, // We store the hashed password, not the raw one
-    IndexNumber: { type: String, required: true, unique: true },
+    
 
     // 🔑 THE CRITICAL MULTI-TENANCY LINK
     tenantId: {

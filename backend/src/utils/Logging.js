@@ -31,6 +31,9 @@ export const Logger = {
         // Important: For errors, we log the full structure and stack
         console.error(`[ERROR] [${timestamp}] [${logEntry.source}] ${message}`, logEntry);
         break;
+      case 'debug':
+        console.error(`[DEBUG] [${timestamp}] [${logEntry.source}] ${message}`, logEntry);
+        break;
       default:
         console.log(`[DEBUG] [${timestamp}] [${logEntry.source}] ${message}`, logEntry);
     }
@@ -40,6 +43,8 @@ export const Logger = {
   // Public logging methods
   info: (source, message, data) => Logger._log('INFO', source, message, data),
   error: (source, message, data) => Logger._log('ERROR', source, message, data),
+  warn: (source, message, data) => Logger._log('WARN', source, message, data),
+  debug: (source, message, data) => Logger._log('DEBUG', source, message, data),
   // You can add more like warn, debug here if needed
 };
 

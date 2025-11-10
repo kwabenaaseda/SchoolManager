@@ -12,6 +12,8 @@ import {
   List_System_Users,
 } from "../../controllers/System/SystemUserManager.controller.js";
 import { Get_System_Health } from "../../controllers/System/SystemHealth_Audit.controller.js";
+import { Create_New_Tenant } from "../../controllers/System/tenantLifeCycle.controller.js";
+
 // -------------------
 // START SWAGGER DOCUMENTATION - SYSTEM ROUTES
 // -------------------
@@ -45,28 +47,33 @@ import { Get_System_Health } from "../../controllers/System/SystemHealth_Audit.c
  *           schema:
  *             type: object
  *             required:
- *               - name
- *               - domain
- *               - adminEmail
- *               - adminPassword
+ *                 -tenantName,
+ *                 -ownerPhone,
+ *                 -ownerFirstName,
+ *                 -ownerSurname,
+ *                 -ownerEmail,
+ *                 -ownerPassword,
+ *                 -ownerGender,
+ *                 -ownerDOB
+ *                 -subscriptionPlan
  *             properties:
- *               name:
+ *               tenantname:
  *                 type: string
  *                 example: "Springfield Elementary School"
- *               domain:
+ *               ownerPhone:
  *                 type: string
- *                 example: "springfield"
- *               adminEmail:
+ *                 example: "+000 123 456 789"
+ *               ownerEmail:
  *                 type: string
  *                 format: email
  *                 example: "principal@springfield.edu"
- *               adminPassword:
+ *               ownerPassword:
  *                 type: string
  *                 format: password
  *                 example: "SecurePassword123"
- *               plan:
+ *               subscriptionPlan:
  *                 type: string
- *                 enum: [basic, premium, enterprise]
+ *                 enum: [basic,  standard, premium, enterprise]
  *                 example: "premium"
  *     responses:
  *       201:
@@ -76,9 +83,7 @@ import { Get_System_Health } from "../../controllers/System/SystemHealth_Audit.c
  *       409:
  *         description: Tenant domain already exists
  */
-Systemrouter.post("/tenant", (req, res) => {
-  res.send({ message: "SYSTEM: Create new Tenant and initial RootUser" });
-});
+Systemrouter.post("/tenant",Firewall,Create_New_Tenant);
 
 /**
  * @swagger
