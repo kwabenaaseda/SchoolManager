@@ -1,5 +1,7 @@
 // /src/routes/tenant.routes.js
 import express from 'express'
+import { Login } from '../../controllers/Tenants/auth.controller';
+import Firewall from '../../middleware/Firewall.js'
 const tenantrouter = express.Router()
 // -------------------
 // START SWAGGER DOCUMENTATION - TENANT ROUTES
@@ -73,9 +75,7 @@ const tenantrouter = express.Router()
  *       401:
  *         description: Invalid credentials
  */
-tenantrouter.post('/auth/login', (req, res) => {
-    res.send({ message: `AUTHENTICATION: Log in user` });
-});
+tenantrouter.post('/auth/login',Firewall,Login);
 
 /**
  * @swagger

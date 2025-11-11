@@ -29,11 +29,10 @@ const _Create_New_User = async (req, res) => {
   const requiredCode = process.env.PLATFORM_REGISTRATION_CODE;
 
   if (!requiredCode || registrationCode !== requiredCode) {
-    Logger.error(
-      _Create_New_User.name,
-      "Unauthorized registration attempt.",
-      { providedCode: registrationCode, ip: req.ip }
-    );
+    Logger.error(_Create_New_User.name, "Unauthorized registration attempt.", {
+      providedCode: registrationCode,
+      ip: req.ip,
+    });
     // Use a generic error message to avoid giving hints about the required code format
     throw {
       statusCode: 401,
@@ -44,9 +43,21 @@ const _Create_New_User = async (req, res) => {
 
   // --- 1. Define & Run Validation Rules (for brevity, keeping simple check here) ---
   const validationRules = [
-    { value: firstName, isValid: firstName && firstName.length >= 3, instruction: "First name is required." },
-    { value: email, isValid: /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email), instruction: "Valid email is required." },
-    { value: password, isValid: password && password.length >= 8, instruction: "Password needs 8+ characters." },
+    {
+      value: firstName,
+      isValid: firstName && firstName.length >= 3,
+      instruction: "First name is required.",
+    },
+    {
+      value: email,
+      isValid: /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email),
+      instruction: "Valid email is required.",
+    },
+    {
+      value: password,
+      isValid: password && password.length >= 8,
+      instruction: "Password needs 8+ characters.",
+    },
   ];
 
   const failedValidations = validationRules.filter((rule) => !rule.isValid);
@@ -66,14 +77,16 @@ const _Create_New_User = async (req, res) => {
 
     // A. Create the SystemUser (platform_role starts as 'Pending')
     const newSystemUser = await SystemUser.create(
-      [{
-        first_name: firstName,
-        surname: surname,
-        email: email,
-        password: password,
-        platform_role: 'SuperAdmin',
-        isActive: false, // User is inactive until a SuperAdmin approves them.
-      }],
+      [
+        {
+          first_name: firstName,
+          surname: surname,
+          email: email,
+          password: password,
+          platform_role: "SuperAdmin",
+          isActive: false, // User is inactive until a SuperAdmin approves them.
+        },
+      ],
       { session }
     );
     const userId = newSystemUser[0]._id;
@@ -91,21 +104,28 @@ const _Create_New_User = async (req, res) => {
       { associated_rootuser_id: rootUserId },
       { session, new: true }
     );
-    
+
     // D. Commit the Transaction: ALL or NOTHING
     await session.commitTransaction();
-    
-    Logger.info(_Create_New_User.name, `System User created and linked successfully: ${email}`);
+
+    Logger.info(
+      _Create_New_User.name,
+      `System User created and linked successfully: ${email}`
+    );
 
     // --- Post-Transaction Success ---
     return sendSuccessResponse(res, {
-        successMessage: "System account created successfully. Awaiting administrator approval.",
-        data: { userId, email, platformRole: "SuperAdmin" }
+      successMessage:
+        "System account created successfully. Awaiting administrator approval.",
+      data: { userId, email, platformRole: "SuperAdmin" },
     });
-
   } catch (error) {
     await session.abortTransaction();
-    Logger.error(_Create_New_User.name, "Transaction aborted during user creation.", { error: error.message });
+    Logger.error(
+      _Create_New_User.name,
+      "Transaction aborted during user creation.",
+      { error: error.message }
+    );
     throw error;
   } finally {
     session.endSession();
@@ -113,64 +133,79 @@ const _Create_New_User = async (req, res) => {
 };
 export const Create_New_User = controllerWrapper(_Create_New_User);
 
-
 /**
  * ===============================================================
  * USER LOGIN
  * ===============================================================
  */
 const _Login = async (req, res) => {
-    Logger.debug(_Login.name, "Attempting System User login.", { email: req.body.email });
-    
-    const { email, password } = req.body;
+  Logger.debug(_Login.name, "Attempting System User login.", {
+    email: req.body.email,
+  });
 
-    // 1. Find User by Email
-    const user = await SystemUser.findOne({ email });
+  const { email, password } = req.body;
 
-    if (!user) {
-        // Use a generic message to prevent user enumeration
-        throw { statusCode: 401, message: "Invalid credentials.", name: "AuthenticationError" };
-    }
+  // 1. Find User by Email
+  const user = await SystemUser.findOne({ email });
 
-    // 2. Check Password
-    const isMatch = await bcryptjs.compare(password, user.password);
+  if (!user) {
+    // Use a generic message to prevent user enumeration
+    throw {
+      statusCode: 401,
+      message: "Invalid credentials.",
+      name: "AuthenticationError",
+    };
+  }
 
-    if (!isMatch) {
-        throw { statusCode: 401, message: "Invalid credentials.", name: "AuthenticationError" };
-    }
+  // 2. Check Password
+  const isMatch = await bcryptjs.compare(password, user.password);
 
-    // 3. Check Account Status (Crucial for security)
-    if (!user.isActive) {
-        Logger.warn(_Login.name, `Inactive user attempted login: ${user.email}`);
-        throw { statusCode: 403, message: "Account is inactive. Please contact your administrator.", name: "AccountInactiveError" };
-    }
+  if (!isMatch) {
+    throw {
+      statusCode: 401,
+      message: "Invalid credentials.",
+      name: "AuthenticationError",
+    };
+  }
 
-    // 4. Token Generation (tenant is null for platform users)
-    const accessToken = AccessSign({ 
-        id: user._id, 
-        role: user.platform_role, 
-        tenant: null 
-    });
-    const refreshToken = RefreshAccessSign({ id: user._id });
+  // 3. Check Account Status (Crucial for security)
+  if (!user.isActive) {
+    Logger.warn(_Login.name, `Inactive user attempted login: ${user.email}`);
+    throw {
+      statusCode: 403,
+      message: "Account is inactive. Please contact your administrator.",
+      name: "AccountInactiveError",
+    };
+  }
 
-    // 5. Update last_login in RootUser (Fire-and-Forget)
-    RootUser.findByIdAndUpdate(user.associated_rootuser_id, { last_login: Date.now() })
-        .catch(e => Logger.error(_Login.name, "Failed to update RootUser last_login.", e));
+  // 4. Token Generation (tenant is null for platform users)
+  const accessToken = AccessSign({
+    id: user._id,
+    role: user.platform_role,
+    tenant: null,
+  });
+  const refreshToken = RefreshAccessSign({ id: user._id });
 
-    // 6. Send Response
-    return sendSuccessResponse(res, {
-        successMessage: `Welcome back, ${user.first_name}!`,
-        data: {
-            userId: user._id,
-            email: user.email,
-            platformRole: user.platform_role,
-            accessToken,
-            refreshToken,
-        },
-    });
+  // 5. Update last_login in RootUser (Fire-and-Forget)
+  RootUser.findByIdAndUpdate(user.associated_rootuser_id, {
+    last_login: Date.now(),
+  }).catch((e) =>
+    Logger.error(_Login.name, "Failed to update RootUser last_login.", e)
+  );
+
+  // 6. Send Response
+  return sendSuccessResponse(res, {
+    successMessage: `Welcome back, ${user.first_name}!`,
+    data: {
+      userId: user._id,
+      email: user.email,
+      platformRole: user.platform_role,
+      accessToken,
+      refreshToken,
+    },
+  });
 };
 export const Login = controllerWrapper(_Login);
-
 
 /**
  * ===============================================================
@@ -179,14 +214,21 @@ export const Login = controllerWrapper(_Login);
  */
 const _Get_User_Profile = async (req, res) => {
   // req.user.id is populated by the authentication middleware
-  Logger.debug(_Get_User_Profile.name, `Fetching profile for user ID: ${req.user.id}`); 
+  Logger.debug(
+    _Get_User_Profile.name,
+    `Fetching profile for user ID: ${req.user.id}`
+  );
 
-  const userId = req.user.id; 
+  const userId = req.user.id;
 
-  const user = await SystemUser.findById(userId).select('-password'); // Exclude password hash
+  const user = await SystemUser.findById(userId).select("-password"); // Exclude password hash
 
   if (!user) {
-    throw { statusCode: 404, message: `User with ID ${userId} not found.`, name: "NotFoundError" };
+    throw {
+      statusCode: 404,
+      message: `User with ID ${userId} not found.`,
+      name: "NotFoundError",
+    };
   }
 
   return sendSuccessResponse(res, {
@@ -196,14 +238,16 @@ const _Get_User_Profile = async (req, res) => {
 };
 export const Get_User_Profile = controllerWrapper(_Get_User_Profile);
 
-
 /**
  * ===============================================================
  * UPDATE USER PROFILE (Requires Authentication)
  * ===============================================================
  */
 const _Update_User = async (req, res) => {
-  Logger.info(_Update_User.name, `Update request for user ID: ${req.params.id}`);
+  Logger.info(
+    _Update_User.name,
+    `Update request for user ID: ${req.params.id}`
+  );
 
   const { id } = req.params;
   const updates = req.body;
@@ -212,20 +256,23 @@ const _Update_User = async (req, res) => {
   delete updates.platform_role;
   delete updates.isActive;
   delete updates.associated_rootuser_id;
-  
-  // NOTE: Password changes should be handled by a separate controller that requires the old password.
-  delete updates.password; 
 
-  const updatedUser = await SystemUser.findByIdAndUpdate(
-    id,
-    updates,
-    { new: true, runValidators: true } 
-  ).select('-password');
+  // NOTE: Password changes should be handled by a separate controller that requires the old password.
+  delete updates.password;
+
+  const updatedUser = await SystemUser.findByIdAndUpdate(id, updates, {
+    new: true,
+    runValidators: true,
+  }).select("-password");
 
   if (!updatedUser) {
-    throw { statusCode: 404, message: `User with ID ${id} not found.`, name: "NotFoundError" };
+    throw {
+      statusCode: 404,
+      message: `User with ID ${id} not found.`,
+      name: "NotFoundError",
+    };
   }
-  
+
   // DISTRIBUTED SYSTEMS STEP (Cache Invalidation) - Fire-and-Forget
   publishCacheInvalidation(id);
 
@@ -236,44 +283,50 @@ const _Update_User = async (req, res) => {
 };
 export const Update_User = controllerWrapper(_Update_User);
 
-
 /**
  * ===============================================================
  * DELETE/INACTIVATE USER (Soft Delete for Auditing)
  * ===============================================================
  */
 const _Delete_User = async (req, res) => {
-    Logger.warn(_Delete_User.name, `Inactivation request for user ID: ${req.params.id}`);
-    
-    const { id } = req.params;
-    
-    // Perform a soft delete by setting isActive to false (essential for auditing)
-    const inactivationResult = await SystemUser.findByIdAndUpdate(
-        id,
-        { isActive: false },
-        { new: true }
-    );
+  Logger.warn(
+    _Delete_User.name,
+    `Inactivation request for user ID: ${req.params.id}`
+  );
 
-    if (!inactivationResult) {
-        throw { statusCode: 404, message: `User with ID ${id} not found.`, name: "NotFoundError" };
-    }
-    
-    // DISTRIBUTED SYSTEMS STEP (Cache Invalidation) - Fire-and-Forget
-    publishCacheInvalidation(id);
+  const { id } = req.params;
 
+  // Perform a soft delete by setting isActive to false (essential for auditing)
+  const inactivationResult = await SystemUser.findByIdAndUpdate(
+    id,
+    { isActive: false },
+    { new: true }
+  );
 
-    // Inactivate the RootUser record as well (Fire-and-Forget)
-    RootUser.findByIdAndUpdate(inactivationResult.associated_rootuser_id, { is_active: false })
-        .catch(e => Logger.error(_Delete_User.name, "Failed to inactivate RootUser record.", e));
+  if (!inactivationResult) {
+    throw {
+      statusCode: 404,
+      message: `User with ID ${id} not found.`,
+      name: "NotFoundError",
+    };
+  }
 
+  // DISTRIBUTED SYSTEMS STEP (Cache Invalidation) - Fire-and-Forget
+  publishCacheInvalidation(id);
 
-    return sendSuccessResponse(res, {
-        successMessage: `User account ${id} has been successfully inactivated (soft-deleted).`,
-        data: { userId: id, isActive: false },
-    });
+  // Inactivate the RootUser record as well (Fire-and-Forget)
+  RootUser.findByIdAndUpdate(inactivationResult.associated_rootuser_id, {
+    is_active: false,
+  }).catch((e) =>
+    Logger.error(_Delete_User.name, "Failed to inactivate RootUser record.", e)
+  );
+
+  return sendSuccessResponse(res, {
+    successMessage: `User account ${id} has been successfully inactivated (soft-deleted).`,
+    data: { userId: id, isActive: false },
+  });
 };
 export const Delete_User = controllerWrapper(_Delete_User);
-
 
 /**
  * ===============================================================
@@ -284,37 +337,35 @@ const _Refresh_Token = async (req, res) => {
   Logger.debug(_Refresh_Token.name, "Token refresh request initiated.");
 
   // We assume an auth middleware has verified the refresh token and set req.user.id
-  
+
   const userId = req.user.id;
-  const user = await SystemUser.findById(userId).select('platform_role');
-  
+  const user = await SystemUser.findById(userId).select("platform_role");
+
   if (!user || !user.isActive) {
-      throw {
-          statusCode: 403, 
-          message: "Account inactive or invalid session. Please log in again.",
-          name: "TokenForbiddenError",
-      };
+    throw {
+      statusCode: 403,
+      message: "Account inactive or invalid session. Please log in again.",
+      name: "TokenForbiddenError",
+    };
   }
 
   // Generate a brand new access token (short-lived)
-  const newAccessToken = AccessSign({ 
-    id: userId, 
-    role: user.platform_role, 
-    tenant: null // Still null for platform users
+  const newAccessToken = AccessSign({
+    id: userId,
+    role: user.platform_role,
+    tenant: null, // Still null for platform users
   });
 
   return sendSuccessResponse(res, {
     successMessage: "New access token generated.",
     data: {
-        accessToken: newAccessToken,
-        userId: userId,
-        platformRole: user.platform_role,
+      accessToken: newAccessToken,
+      userId: userId,
+      platformRole: user.platform_role,
     },
   });
 };
 export const Refresh_Token = controllerWrapper(_Refresh_Token);
-
-
 
 /**
  * ===============================================================
@@ -324,7 +375,10 @@ export const Refresh_Token = controllerWrapper(_Refresh_Token);
  */
 const _List_System_Users = async (req, res) => {
   // 1. Logging the start of the action
-  Logger.debug(_List_System_Users.name, "Attempting to retrieve all System Users.");
+  Logger.debug(
+    _List_System_Users.name,
+    "Attempting to retrieve all System Users."
+  );
 
   // For a distributed system, this action is highly privileged.
   // We assume an Authentication/Authorization Middleware has already verified

@@ -1,555 +1,69 @@
-import { ErrorHandler } from "../../utils/Logging";
+import {
+  controllerWrapper,
+  Logger,
+  sendSuccessResponse,
+} from "../../utils/Logging";
+import User from "../../models/TENANTS/users/User.js";
+import bcrypt from "bcryptjs";
+import { AccessSign, RefreshAccessSign } from "../../utils/auth";
 
-//general Auths
-export const RenewToken = async (req, res) => {
-  const doc = `
-    ------Functional Documentation--------
-    Brief: This is the Documentation for the root function. This should aid you in debugging, testing and continuing work after some time. 
-    Function Name:
-    Function requested Parameters:
-    Function Expected Output:
-    Created-by: NexusWings🔥
-    `;
-  try {
-    const {} = req.body;
-    const {} = req.user;
-    // Error Handling
-    const calls = [
-      /*Format
-            {
-            id: this is the variable being called ,
-            name: this is the name you want the varaible to be denoted as,
-            rule: this is the checker on the variable,
-            instruction: in case the checker returns false, this is the custom instruction given to the user
-            } */
-    ];
-    let message = "";
-    calls.forEach((element) => {
-      if (!element.id) {
-        message = `${element.name} Not Found!`;
-        ErrorHandler()({
-          documentation: doc,
-          custom_error_message: message,
-          status_code: 401,
-          _response: res,
-        }).UserResponse();
-        message = "";
-        return;
-      }
-      if (element.rule != undefined && element.instruction != undefined) {
-        if (!element.rule) {
-          message = element.instruction;
-          ErrorHandler()({
-            documentation: doc,
-            custom_error_message: message,
-            status_code: 401,
-            _response: res,
-          }).UserResponse();
-          message = "";
-          return;
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Server Error :", error);
-    ErrorHandler()({
-      documentation: doc,
-      error_message: error,
-      custom_error_message: "Server Error: Please Try Again",
-      _response: res,
-      status_code: 501,
-    }).UserResponse();
-  }
-};
-//Owner auths
-export const NewOwner = async (req, res) => {
-  const doc = `
-    ------Functional Documentation--------
-    Brief: This is the Documentation for the root function. This should aid you in debugging, testing and continuing work after some time. 
-    Function Name:
-    Function requested Parameters:
-    Function Expected Output:
-    Created-by: NexusWings🔥
-    `;
-  try {
-    const {} = req.body;
-    const {} = req.user;
-    // Error Handling
-    const calls = [
-      /*Format
-            {
-            id: this is the variable being called ,
-            name: this is the name you want the varaible to be denoted as,
-            rule: this is the checker on the variable,
-            instruction: in case the checker returns false, this is the custom instruction given to the user
-            } */
-    ];
-    let message = "";
-    calls.forEach((element) => {
-      if (!element.id) {
-        message = `${element.name} Not Found!`;
+const _Login = async (req, res) => {
+  Logger.debug(_Login.name, "Attempting Tenant User Login", {
+    email: req.body.email,
+  });
 
-        ErrorHandler(NewOwner)({
-          documentation: doc,
-          custom_error_message: message,
-          status_code: 401,
-          _response: res,
-        }).UserResponse();
-        message = "";
-        return;
-      }
-      if (element.rule != undefined && element.instruction != undefined) {
-        if (!element.rule) {
-          message = element.instruction;
-          ErrorHandler(NewOwner)({
-            documentation: doc,
-            custom_error_message: message,
-            status_code: 401,
-            _response: res,
-          }).UserResponse();
-          message = "";
-          return;
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Server Error :", error);
-    ErrorHandler(NewOwner)({
-      documentation: doc,
-      error_message: error,
-      custom_error_message: "Server Error: Please Try Again",
-      _response: res,
-      status_code: 501,
-    }).UserResponse();
-  }
-};
-export const LoginOwner = async (req, res) => {
-  const doc = `
-    ------Functional Documentation--------
-    Brief: This is the Documentation for the root function. This should aid you in debugging, testing and continuing work after some time. 
-    Function Name:
-    Function requested Parameters:
-    Function Expected Output:
-    Created-by: NexusWings🔥
-    `;
-  try {
-    const {} = req.body;
-    const {} = req.user;
-    // Error Handling
-    const calls = [
-      /*Format
-            {
-            id: this is the variable being called ,
-            name: this is the name you want the varaible to be denoted as,
-            rule: this is the checker on the variable,
-            instruction: in case the checker returns false, this is the custom instruction given to the user
-            } */
-    ];
-    let message = "";
-    calls.forEach((element) => {
-      if (!element.id) {
-        message = `${element.name} Not Found!`;
+  const { email, password } = req.body;
 
-        ErrorHandler()({
-          documentation: doc,
-          custom_error_message: message,
-          status_code: 401,
-          _response: res,
-        }).UserResponse();
-        message = "";
-        return;
-      }
-      if (element.rule != undefined && element.instruction != undefined) {
-        if (!element.rule) {
-          message = element.instruction;
-          ErrorHandler()({
-            documentation: doc,
-            custom_error_message: message,
-            status_code: 401,
-            _response: res,
-          }).UserResponse();
-          message = "";
-          return;
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Server Error :", error);
-    ErrorHandler()({
-      documentation: doc,
-      error_message: error,
-      custom_error_message: "Server Error: Please Try Again",
-      _response: res,
-      status_code: 501,
-    }).UserResponse();
-  }
-};
-//admin auths
-export const NewAdmin = async (req, res) => {
-  const doc = `
-    ------Functional Documentation--------
-    Brief: This is the Documentation for the root function. This should aid you in debugging, testing and continuing work after some time. 
-    Function Name:
-    Function requested Parameters:
-    Function Expected Output:
-    Created-by: NexusWings🔥
-    `;
-  try {
-    const {} = req.body;
-    const {} = req.user;
-    // Error Handling
-    const calls = [
-      /*Format
-            {
-            id: this is the variable being called ,
-            name: this is the name you want the varaible to be denoted as,
-            rule: this is the checker on the variable,
-            instruction: in case the checker returns false, this is the custom instruction given to the user
-            } */
-    ];
-    let message = "";
-    calls.forEach((element) => {
-      if (!element.id) {
-        message = `${element.name} Not Found!`;
+  const user = await User.findOne({ email: email });
 
-        ErrorHandler()({
-          documentation: doc,
-          custom_error_message: message,
-          status_code: 401,
-          _response: res,
-        }).UserResponse();
-        message = "";
-        return;
-      }
-      if (element.rule != undefined && element.instruction != undefined) {
-        if (!element.rule) {
-          message = element.instruction;
-          ErrorHandler()({
-            documentation: doc,
-            custom_error_message: message,
-            status_code: 401,
-            _response: res,
-          }).UserResponse();
-          message = "";
-          return;
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Server Error :", error);
-    ErrorHandler()({
-      documentation: doc,
-      error_message: error,
-      custom_error_message: "Server Error: Please Try Again",
-      _response: res,
-      status_code: 501,
-    }).UserResponse();
+  if (!user) {
+    throw {
+      statusCode: 401,
+      message: "Invalid credentials.",
+      name: "AuthenticationError",
+    };
   }
-};
-export const LoginAdimin = async (req, res) => {
-  const doc = `
-    ------Functional Documentation--------
-    Brief: This is the Documentation for the root function. This should aid you in debugging, testing and continuing work after some time. 
-    Function Name:
-    Function requested Parameters:
-    Function Expected Output:
-    Created-by: NexusWings🔥
-    `;
-  try {
-    const {} = req.body;
-    const {} = req.user;
-    // Error Handling
-    const calls = [
-      /*Format
-            {
-            id: this is the variable being called ,
-            name: this is the name you want the varaible to be denoted as,
-            rule: this is the checker on the variable,
-            instruction: in case the checker returns false, this is the custom instruction given to the user
-            } */
-    ];
-    let message = "";
-    calls.forEach((element) => {
-      if (!element.id) {
-        message = `${element.name} Not Found!`;
+  const isMatch = bcrypt.compare(password, user.password);
 
-        ErrorHandler()({
-          documentation: doc,
-          custom_error_message: message,
-          status_code: 401,
-          _response: res,
-        }).UserResponse();
-        message = "";
-        return;
-      }
-      if (element.rule != undefined && element.instruction != undefined) {
-        if (!element.rule) {
-          message = element.instruction;
-          ErrorHandler()({
-            documentation: doc,
-            custom_error_message: message,
-            status_code: 401,
-            _response: res,
-          }).UserResponse();
-          message = "";
-          return;
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Server Error :", error);
-    ErrorHandler()({
-      documentation: doc,
-      error_message: error,
-      custom_error_message: "Server Error: Please Try Again",
-      _response: res,
-      status_code: 501,
-    }).UserResponse();
+  if (!isMatch) {
+    throw {
+      statusCode: 401,
+      message: "Invalid credentials.",
+      name: "AuthenticationError",
+    };
   }
-};
-//staff auths
-export const NewStaff = async (req, res) => {
-  const doc = `
-    ------Functional Documentation--------
-    Brief: This is the Documentation for the root function. This should aid you in debugging, testing and continuing work after some time. 
-    Function Name:
-    Function requested Parameters:
-    Function Expected Output:
-    Created-by: NexusWings🔥
-    `;
-  try {
-    const {} = req.body;
-    const {} = req.user;
-    // Error Handling
-    const calls = [
-      /*Format
-            {
-            id: this is the variable being called ,
-            name: this is the name you want the varaible to be denoted as,
-            rule: this is the checker on the variable,
-            instruction: in case the checker returns false, this is the custom instruction given to the user
-            } */
-    ];
-    let message = "";
-    calls.forEach((element) => {
-      if (!element.id) {
-        message = `${element.name} Not Found!`;
 
-        ErrorHandler()({
-          documentation: doc,
-          custom_error_message: message,
-          status_code: 401,
-          _response: res,
-        }).UserResponse();
-        message = "";
-        return;
-      }
-      if (element.rule != undefined && element.instruction != undefined) {
-        if (!element.rule) {
-          message = element.instruction;
-          ErrorHandler()({
-            documentation: doc,
-            custom_error_message: message,
-            status_code: 401,
-            _response: res,
-          }).UserResponse();
-          message = "";
-          return;
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Server Error :", error);
-    ErrorHandler()({
-      documentation: doc,
-      error_message: error,
-      custom_error_message: "Server Error: Please Try Again",
-      _response: res,
-      status_code: 501,
-    }).UserResponse();
+  if (!user.isActive) {
+    Logger.warn(_Login.name, `Inactive user attempted login : ${user.email}`);
+    throw {
+      statusCode: 403,
+      message: "Account is inactive. Please contact your Adminstrator",
+      name: "AccountInactiveError",
+    };
   }
-};
-export const LoginStaff = async (req, res) => {
-  const doc = `
-    ------Functional Documentation--------
-    Brief: This is the Documentation for the root function. This should aid you in debugging, testing and continuing work after some time. 
-    Function Name:
-    Function requested Parameters:
-    Function Expected Output:
-    Created-by: NexusWings🔥
-    `;
-  try {
-    const {} = req.body;
-    const {} = req.user;
-    // Error Handling
-    const calls = [
-      /*Format
-            {
-            id: this is the variable being called ,
-            name: this is the name you want the varaible to be denoted as,
-            rule: this is the checker on the variable,
-            instruction: in case the checker returns false, this is the custom instruction given to the user
-            } */
-    ];
-    let message = "";
-    calls.forEach((element) => {
-      if (!element.id) {
-        message = `${element.name} Not Found!`;
 
-        ErrorHandler()({
-          documentation: doc,
-          custom_error_message: message,
-          status_code: 401,
-          _response: res,
-        }).UserResponse();
-        message = "";
-        return;
-      }
-      if (element.rule != undefined && element.instruction != undefined) {
-        if (!element.rule) {
-          message = element.instruction;
-          ErrorHandler()({
-            documentation: doc,
-            custom_error_message: message,
-            status_code: 401,
-            _response: res,
-          }).UserResponse();
-          message = "";
-          return;
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Server Error :", error);
-    ErrorHandler()({
-      documentation: doc,
-      error_message: error,
-      custom_error_message: "Server Error: Please Try Again",
-      _response: res,
-      status_code: 501,
-    }).UserResponse();
-  }
-};
-//parent/student auths
-export const NewClient = async (req, res) => {
-  const doc = `
-    ------Functional Documentation--------
-    Brief: This is the Documentation for the root function. This should aid you in debugging, testing and continuing work after some time. 
-    Function Name:
-    Function requested Parameters:
-    Function Expected Output:
-    Created-by: NexusWings🔥
-    `;
-  try {
-    const {} = req.body;
-    const {} = req.user;
-    // Error Handling
-    const calls = [
-      /*Format
-            {
-            id: this is the variable being called ,
-            name: this is the name you want the varaible to be denoted as,
-            rule: this is the checker on the variable,
-            instruction: in case the checker returns false, this is the custom instruction given to the user
-            } */
-    ];
-    let message = "";
-    calls.forEach((element) => {
-      if (!element.id) {
-        message = `${element.name} Not Found!`;
+  const accessToken = AccessSign({
+    id: user._id,
+    role: user.role,
+    tenant: user.tenantId,
+  });
+  const refreshToken = RefreshAccessSign({ id: user._id });
 
-        ErrorHandler()({
-          documentation: doc,
-          custom_error_message: message,
-          status_code: 401,
-          _response: res,
-        }).UserResponse();
-        message = "";
-        return;
-      }
-      if (element.rule != undefined && element.instruction != undefined) {
-        if (!element.rule) {
-          message = element.instruction;
-          ErrorHandler()({
-            documentation: doc,
-            custom_error_message: message,
-            status_code: 401,
-            _response: res,
-          }).UserResponse();
-          message = "";
-          return;
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Server Error :", error);
-    ErrorHandler()({
-      documentation: doc,
-      error_message: error,
-      custom_error_message: "Server Error: Please Try Again",
-      _response: res,
-      status_code: 501,
-    }).UserResponse();
-  }
-};
-export const LoginClient = async (req, res) => {
-  const doc = `
-    ------Functional Documentation--------
-    Brief: This is the Documentation for the root function. This should aid you in debugging, testing and continuing work after some time. 
-    Function Name:
-    Function requested Parameters:
-    Function Expected Output:
-    Created-by: NexusWings🔥
-    `;
-  try {
-    const {} = req.body;
-    const {} = req.user;
-    // Error Handling
-    const calls = [
-      /*Format
-            {
-            id: this is the variable being called ,
-            name: this is the name you want the varaible to be denoted as,
-            rule: this is the checker on the variable,
-            instruction: in case the checker returns false, this is the custom instruction given to the user
-            } */
-    ];
-    let message = "";
-    calls.forEach((element) => {
-      if (!element.id) {
-        message = `${element.name} Not Found!`;
+  await User.findByIdAndUpdate(user._id, { last_login: Date.now() }).catch(
+    (e) => {
+      Logger.error(_Login.name, "Failed to update User last_login ", e);
+    }
+  );
 
-        ErrorHandler(LoginClient)({
-          documentation: doc,
-          custom_error_message: message,
-          status_code: 401,
-          _response: res,
-        });
-        message = "";
-        return;
-      }
-      if (element.rule != undefined && element.instruction != undefined) {
-        if (!element.rule) {
-          message = element.instruction;
-          ErrorHandler(LoginClient)({
-            documentation: doc,
-            custom_error_message: message,
-            status_code: 401,
-            _response: res,
-          });
-          message = "";
-          return;
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Server Error :", error);
-    ErrorHandler()({
-      documentation: doc,
-      error_message: error,
-      custom_error_message: "Server Error: Please Try Again",
-      _response: res,
-      status_code: 501,
-    }).UserResponse();
-  }
+  return sendSuccessResponse(res, {
+    successMessage: `Welcome back, ${user.username}`,
+    data: {
+      userId: user._id,
+      email: user.email,
+      platformRole: user.role,
+      accessToken,
+      refreshToken,
+    },
+  });
 };
+export const Login = controllerWrapper(_Login);

@@ -26,6 +26,7 @@ const UserSchema = new mongoose.Schema(
     // Compliance and Status
     isComplianceChecked: { type: Boolean, default: false }, // For payroll checks (Phase 6)
     isActive: { type: Boolean, default: true },
+    last_login: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );
