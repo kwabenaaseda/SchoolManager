@@ -83,8 +83,8 @@ const _Create_New_User = async (req, res) => {
           surname: surname,
           email: email,
           password: password,
-          platform_role: "SuperAdmin",
-          isActive: true, // User is inactive until a SuperAdmin approves them.
+          platform_role: "Pending",
+          isActive: false, // User is inactive until a SuperAdmin approves them.
         },
       ],
       { session }
@@ -117,7 +117,7 @@ const _Create_New_User = async (req, res) => {
     return sendSuccessResponse(res, {
       successMessage:
         "System account created successfully. Awaiting administrator approval.",
-      data: { userId, email, platformRole: "SuperAdmin" },
+      data: { userId, email, platformRole: "Pending" },
     });
   } catch (error) {
     await session.abortTransaction();
