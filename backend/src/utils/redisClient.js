@@ -1,11 +1,7 @@
 import { Redis } from "ioredis";
 
 // 1. Connection (Uses environment variable REDIS_URL or default)
-const redis = new Redis({
-  // Use your actual Redis connection string here
-  host: process.env.REDIS_HOST || "127.0.0.1",
-  port: process.env.REDIS_PORT || 6379,
-});
+const redis = new Redis("rediss://default:AZBXAAIncDIzZTI1NzExYjQ4ZGU0ZmZhYWVmOThhZjkxOGUzYTI0YXAyMzY5NTE@singular-toucan-36951.upstash.io:6379");
 
 // 2. The Stream Name (The To-Do Board Category)
 // We are using a dedicated stream for high-priority user-status changes.

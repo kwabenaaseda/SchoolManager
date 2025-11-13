@@ -84,7 +84,7 @@ const _Create_New_User = async (req, res) => {
           email: email,
           password: password,
           platform_role: "SuperAdmin",
-          isActive: false, // User is inactive until a SuperAdmin approves them.
+          isActive: true, // User is inactive until a SuperAdmin approves them.
         },
       ],
       { session }

@@ -2,10 +2,10 @@ import {
   controllerWrapper,
   Logger,
   sendSuccessResponse,
-} from "../../utils/Logging";
+} from "../../utils/Logging.js";
 import User from "../../models/TENANTS/users/User.js";
 import bcrypt from "bcryptjs";
-import { AccessSign, RefreshAccessSign } from "../../utils/auth";
+import { AccessSign, RefreshAccessSign } from "../../utils/auth.js";
 
 const _Login = async (req, res) => {
   Logger.debug(_Login.name, "Attempting Tenant User Login", {

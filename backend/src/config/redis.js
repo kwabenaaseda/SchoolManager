@@ -5,8 +5,8 @@ import { LogSystemEvent } from '../utils/HealthService.js';
 
 // 1. Connection Setup
 // We use an environment variable to connect. 
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
-const redisClient = new Redis(REDIS_URL);
+/* const REDIS_URL = process.env.REDIS_URL */
+const redisClient = new Redis("rediss://default:AZBXAAIncDIzZTI1NzExYjQ4ZGU0ZmZhYWVmOThhZjkxOGUzYTI0YXAyMzY5NTE@singular-toucan-36951.upstash.io:6379");
 
 // ===============================================================
 // REDIS LIFECYCLE TRACKING (System Death and Revival)

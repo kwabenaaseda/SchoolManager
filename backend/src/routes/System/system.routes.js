@@ -331,10 +331,12 @@ Systemrouter.get("/system-user/:userId", Firewall, Get_User_Profile);
  *         application/json:
  *           schema:
  *             type: object
- *             required:
+ *             parameters:
  *               - email
  *               - password
- *               - role
+ *               - registrationCode
+ *               - firstName
+ *               - surname
  *             properties:
  *               email:
  *                 type: string
@@ -344,10 +346,12 @@ Systemrouter.get("/system-user/:userId", Firewall, Get_User_Profile);
  *                 type: string
  *                 format: password
  *                 example: "SecurePassword123"
- *               role:
+ *               firstName:
  *                 type: string
- *                 enum: [Root-SystemUser, Admin-SystemUser, Support-SystemUser]
- *                 example: "Admin-SystemUser"
+ *                 example: "John"
+ *               surname:
+ *                 type: string
+ *                 example: "Doe"
  *               permissions:
  *                 type: array
  *                 items:

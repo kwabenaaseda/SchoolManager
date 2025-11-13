@@ -1,6 +1,6 @@
 // /src/routes/tenant.routes.js
 import express from 'express'
-import { Login } from '../../controllers/Tenants/auth.controller';
+import { Login } from '../../controllers/Tenants/auth.controller.js';
 import Firewall from '../../middleware/Firewall.js'
 const tenantrouter = express.Router()
 // -------------------
