@@ -331,7 +331,7 @@ Systemrouter.get("/system-user/:userId", Firewall, Get_User_Profile);
  *         application/json:
  *           schema:
  *             type: object
- *             parameters:
+ *             required:
  *               - email
  *               - password
  *               - registrationCode
