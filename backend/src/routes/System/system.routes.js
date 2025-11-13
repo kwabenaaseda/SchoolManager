@@ -60,6 +60,19 @@ import { Create_New_Tenant } from "../../controllers/System/tenantLifeCycle.cont
  *               tenantname:
  *                 type: string
  *                 example: "Springfield Elementary School"
+ *               ownerFirstName:
+ *                 type: string
+ *                 example: "Jerry"
+ *               ownerSurname:
+ *                 type: string
+ *                 example: "Springs"
+ *               ownerGender:
+ *                 type: string
+ *                  enum: [male,female]
+ *                 example: "male"
+ *               ownerDOB:
+ *                 type: string
+ *                 example: "01/01/1919"
  *               ownerPhone:
  *                 type: string
  *                 example: "+000 123 456 789"
@@ -352,10 +365,9 @@ Systemrouter.get("/system-user/:userId", Firewall, Get_User_Profile);
  *               surname:
  *                 type: string
  *                 example: "Doe"
- *               permissions:
- *                 type: array
- *                 items:
- *                   type: string
+ *               registrationCode:
+ *                 type: string
+ *                 
  *     responses:
  *       201:
  *         description: System user created successfully
