@@ -32,7 +32,7 @@ const tenantrouter = express.Router()
 
 /**
  * @swagger
- * /auth/login:
+ * /api/v1/tenant/auth/login:
  *   post:
  *     summary: Log in tenant user
  *     tags: [Tenant Authentication]
@@ -79,7 +79,7 @@ tenantrouter.post('/auth/login',Firewall,Login);
 
 /**
  * @swagger
- * /auth/refresh:
+ * /api/v1/tenant/auth/refresh:
  *   post:
  *     summary: Refresh access token
  *     tags: [Tenant Authentication]
@@ -107,7 +107,7 @@ tenantrouter.post('/auth/refresh', (req, res) => {
 
 /**
  * @swagger
- * /profile:
+ * /api/v1/tenant/profile:
  *   get:
  *     summary: Get logged-in user's detailed profile
  *     tags: [User Profile]
@@ -130,7 +130,7 @@ tenantrouter.get('/profile', (req, res) => {
 
 /**
  * @swagger
- * /profile/update:
+ * /api/v1/tenant/profile/update:
  *   put:
  *     summary: Update logged-in user's personal details
  *     tags: [User Profile]
@@ -166,7 +166,7 @@ tenantrouter.put('/profile/update', (req, res) => {
 
 /**
  * @swagger
- * /staff/create:
+ * /api/v1/tenant/staff/create:
  *   post:
  *     summary: Create new Staff member
  *     tags: [User Management]
@@ -209,7 +209,7 @@ tenantrouter.post('/staff/create', (req, res) => {
 
 /**
  * @swagger
- * /student/create:
+ * /api/v1/tenant/student/create:
  *   post:
  *     summary: Create new Student
  *     tags: [User Management]
@@ -250,7 +250,7 @@ tenantrouter.post('/student/create', (req, res) => {
 
 /**
  * @swagger
- * /staff:
+ * /api/v1/tenant/staff:
  *   get:
  *     summary: List all Staff members
  *     tags: [User Management]
@@ -276,7 +276,7 @@ tenantrouter.get('/staff', (req, res) => {
 
 /**
  * @swagger
- * /students:
+ * /api/v1/tenant/students:
  *   get:
  *     summary: List all Students
  *     tags: [User Management]
@@ -303,7 +303,7 @@ tenantrouter.get('/students', (req, res) => {
 
 /**
  * @swagger
- * /user/{userId}:
+ * /api/v1/tenant/user/{userId}:
  *   get:
  *     summary: Get specific user details
  *     tags: [User Management]
@@ -327,7 +327,7 @@ tenantrouter.get('/user/:userId', (req, res) => {
 
 /**
  * @swagger
- * /user/{userId}:
+ * /api/v1/tenant/user/{userId}:
  *   put:
  *     summary: Update user status or soft-delete/archive
  *     tags: [User Management]
@@ -404,7 +404,7 @@ tenantrouter.put('/user/:userId/role', (req, res) => {
 
 /**
  * @swagger
- * /scores/submit:
+ * /api/v1/tenant/scores/submit:
  *   post:
  *     summary: Submit raw scores for a class/course
  *     tags: [Academic & Grading]
@@ -444,7 +444,7 @@ tenantrouter.post('/scores/submit', (req, res) => {
 
 /**
  * @swagger
- * /grading-systems:
+ * /api/v1/tenant/grading-systems:
  *   get:
  *     summary: List all grading systems
  *     tags: [Academic & Grading]
@@ -459,7 +459,7 @@ tenantrouter.get('/grading-systems', (req, res) => {
 
 /**
  * @swagger
- * /grading-systems:
+ * /api/v1/tenant/grading-systems:
  *   post:
  *     summary: Create new grading system
  *     tags: [Academic & Grading]
@@ -503,7 +503,7 @@ tenantrouter.post('/grading-systems', (req, res) => {
 
 /**
  * @swagger
- * /reports/generate/{studentId}:
+ * /api/v1/tenant/reports/generate/{studentId}:
  *   post:
  *     summary: Trigger AI report generation for student
  *     tags: [Academic & Grading]
@@ -538,7 +538,7 @@ tenantrouter.post('/reports/generate/:studentId', (req, res) => {
 
 /**
  * @swagger
- * /reports/{reportId}:
+ * /api/v1/tenant/reports/{reportId}:
  *   get:
  *     summary: Get specific student report
  *     tags: [Academic & Grading]
@@ -566,7 +566,7 @@ tenantrouter.get('/reports/:reportId', (req, res) => {
 
 /**
  * @swagger
- * /finance/main:
+ * /api/v1/tenant/finance/main:
  *   get:
  *     summary: Get school's main financial summary
  *     tags: [Finance & Payroll]
@@ -581,7 +581,7 @@ tenantrouter.get('/finance/main', (req, res) => {
 
 /**
  * @swagger
- * /finance/income:
+ * /api/v1/tenant/finance/income:
  *   post:
  *     summary: Record new income transaction
  *     tags: [Finance & Payroll]
@@ -621,7 +621,7 @@ tenantrouter.post('/finance/income', (req, res) => {
 
 /**
  * @swagger
- * /finance/expense:
+ * /api/v1/tenant/finance/expense:
  *   post:
  *     summary: Record new expense transaction
  *     tags: [Finance & Payroll]
@@ -661,7 +661,7 @@ tenantrouter.post('/finance/expense', (req, res) => {
 
 /**
  * @swagger
- * /finance/student/{studentId}:
+ * /api/v1/tenant/finance/student/{studentId}:
  *   get:
  *     summary: Get student billing and payment history
  *     tags: [Finance & Payroll]
@@ -685,7 +685,7 @@ tenantrouter.get('/finance/student/:studentId', (req, res) => {
 
 /**
  * @swagger
- * /finance/student/{studentId}/payment:
+ * /api/v1/tenant/finance/student/{studentId}/payment:
  *   post:
  *     summary: Record student payment
  *     tags: [Finance & Payroll]
@@ -729,7 +729,7 @@ tenantrouter.post('/finance/student/:studentId/payment', (req, res) => {
 
 /**
  * @swagger
- * /finance/staff/{staffId}/payroll:
+ * /api/v1/tenant/finance/staff/{staffId}/payroll:
  *   get:
  *     summary: Get staff payroll history
  *     tags: [Finance & Payroll]
@@ -757,7 +757,7 @@ tenantrouter.get('/finance/staff/:staffId/payroll', (req, res) => {
 
 /**
  * @swagger
- * /announcements:
+ * /api/v1/tenant/announcements:
  *   post:
  *     summary: Create new announcement
  *     tags: [Content & Announcements]
@@ -796,7 +796,7 @@ tenantrouter.post('/announcements', (req, res) => {
 
 /**
  * @swagger
- * /announcements:
+ * /api/v1/tenant/announcements:
  *   get:
  *     summary: Get all announcements
  *     tags: [Content & Announcements]
@@ -826,7 +826,7 @@ tenantrouter.get('/announcements', (req, res) => {
 
 /**
  * @swagger
- * /admissions/apply:
+ * /api/v1/tenant/admissions/apply:
  *   post:
  *     summary: Submit new student application
  *     tags: [Admissions & Enrollment]
@@ -869,7 +869,7 @@ tenantrouter.post('/admissions/apply', (req, res) => {
 
 /**
  * @swagger
- * /admissions/applications:
+ * /api/v1/tenant/admissions/applications:
  *   get:
  *     summary: Get all admission applications
  *     tags: [Admissions & Enrollment]
@@ -891,7 +891,7 @@ tenantrouter.get('/admissions/applications', (req, res) => {
 
 /**
  * @swagger
- * /admissions/applications/{applicationId}:
+ * /api/v1/tenant/admissions/applications/{applicationId}:
  *   put:
  *     summary: Update application status
  *     tags: [Admissions & Enrollment]

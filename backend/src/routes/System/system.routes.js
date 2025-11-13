@@ -35,7 +35,7 @@ import { Create_New_Tenant } from "../../controllers/System/tenantLifeCycle.cont
 
 /**
  * @swagger
- * /tenant:
+ * /api/v1/system/tenant:
  *   post:
  *     summary: Create a new tenant (school) and its first RootUser
  *     tags: [Tenant Lifecycle Management]
@@ -100,7 +100,7 @@ Systemrouter.post("/tenant",Firewall,Create_New_Tenant);
 
 /**
  * @swagger
- * /tenants:
+ * /api/v1/system/tenants:
  *   get:
  *     summary: Get list of all tenants in the system
  *     tags: [Tenant Lifecycle Management]
@@ -158,7 +158,7 @@ Systemrouter.get("/tenants", (req, res) => {
 
 /**
  * @swagger
- * /tenant/{tenantId}:
+ * /api/v1/system/tenant/{tenantId}:
  *   get:
  *     summary: Get detailed status and configuration for a specific tenant
  *     tags: [Tenant Lifecycle Management]
@@ -184,7 +184,7 @@ Systemrouter.get("/tenant/:tenantId", (req, res) => {
 
 /**
  * @swagger
- * /tenant/{tenantId}/config:
+ * /api/v1/system/tenant/{tenantId}/config:
  *   put:
  *     summary: Update tenant configuration
  *     tags: [Tenant Lifecycle Management]
@@ -228,7 +228,7 @@ Systemrouter.put("/tenant/:tenantId/config", (req, res) => {
 
 /**
  * @swagger
- * /tenant/{tenantId}/status:
+ * /api/v1/system/tenant/{tenantId}/status:
  *   put:
  *     summary: Update tenant subscription/operational status
  *     tags: [Tenant Lifecycle Management]
@@ -270,7 +270,7 @@ Systemrouter.put("/tenant/:tenantId/status", (req, res) => {
 
 /**
  * @swagger
- * /maintenance-mode:
+ * /api/v1/system/maintenance-mode:
  *   post:
  *     summary: Place a tenant into maintenance mode
  *     tags: [Tenant Lifecycle Management]
@@ -308,7 +308,7 @@ Systemrouter.post("/maintenance-mode", (req, res) => {
 
 /**
  * @swagger
- * /system-users:
+ * /api/v1/system/system-users:
  *   get:
  *     summary: Get list of all system-level users (RootUsers)
  *     tags: [System User Management]
@@ -320,7 +320,7 @@ Systemrouter.post("/maintenance-mode", (req, res) => {
 Systemrouter.get("/system-users", Firewall, List_System_Users);
 /**
  * @swagger
- * /system-user/{userid}:
+ * /api/v1/system/system-user/{userid}:
  *   get:
  *     summary: Get list of all system-level users (RootUsers)
  *     tags: [System User Management]
@@ -333,7 +333,7 @@ Systemrouter.get("/system-user/:userId", Firewall, Get_User_Profile);
 
 /**
  * @swagger
- * /system-user/create:
+ * /api/v1/system/system-user/create:
  *   post:
  *     summary: Create a new system-level user
  *     tags: [System User Management]
@@ -380,7 +380,7 @@ Systemrouter.post("/system-user/create", Create_New_User);
 
 /**
  * @swagger
- * /system-user/ed/{userId}:
+ * /api/v1/system/system-user/ed/{userId}:
  *   put:
  *     summary: Update system user's role, status, or access
  *     tags: [System User Management]
@@ -418,7 +418,7 @@ Systemrouter.put("/system-user/ed/:userId", Firewall, Update_User);
 
 /**
  * @swagger
- * /system-user/del/{userId}:
+ * /api/v1/system/system-user/del/{userId}:
  *   put:
  *     summary: Delete system user
  *     tags: [System User Management]
@@ -460,7 +460,7 @@ Systemrouter.put("/system-user/del/:userId", Firewall, Delete_User);
 
 /**
  * @swagger
- * /system-health:
+ * /api/v1/system/system-health:
  *   get:
  *     summary: Get health check status of all core services
  *     tags: [System Health & Audit]
@@ -502,7 +502,7 @@ Systemrouter.get("/system-health",Firewall, Get_System_Health);
 
 /**
  * @swagger
- * /system-auth/login:
+ * /api/v1/system/system-auth/login:
  *   post:
  *     summary: Log in the System User (Root Admin)
  *     tags: [System User Management]
@@ -549,7 +549,7 @@ Systemrouter.post("/system-auth/login", Login);
 
 /**
  * @swagger
- * /system-auth/refresh:
+ * /api/v1/system/system-auth/refresh:
  *   post:
  *     summary: Refresh access token using refresh token
  *     tags: [System User Management]
