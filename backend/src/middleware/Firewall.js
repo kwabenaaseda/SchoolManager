@@ -39,7 +39,7 @@ const FireWall = async (req, res, next) => {
     const decoded = VerifyAccessSign(token); // e.g., { sub: userId, role: role, ref: tenantId }
     
     // Check for essential payload properties
-    if (!decoded.sub || !decoded.role) {
+    if (!decoded.sub ) {
       throw new Error("JWT payload is incomplete.");
     }
 
