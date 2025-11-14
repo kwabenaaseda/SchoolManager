@@ -14,7 +14,7 @@ const SystemUserSchema = new mongoose.Schema(
     platform_role: { 
       type: String, 
       required: true,
-      enum: ["SuperAdmin", "PlatformFinance", "PlatformEngineer","Pending"], 
+      enum: ["SuperAdmin-SystemUser", "PlatformFinance-SystemUser", "PlatformEngineer-SystemUser","Pending-SystemUser"], 
     },
     associated_rootuser_id: {
           type: mongoose.Schema.Types.ObjectId, // Your personal login ID (from User model)

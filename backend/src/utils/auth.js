@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const ACCESS_AUTH_EXPIRES = "10m";
+const ACCESS_AUTH_EXPIRES = "15m";
 const REFRESH_AUTH_EXPIRES = "7d";
 const AUTHENTICATION_EXPIRES = "5m";
 
@@ -9,6 +9,7 @@ export const AccessSign = ({ id, role, tenant }) => {
     sub: id,
     role: role,
     ref: tenant,
+    tag:"Access"
   };
   const options = {
     expiresIn: ACCESS_AUTH_EXPIRES,
@@ -16,9 +17,12 @@ export const AccessSign = ({ id, role, tenant }) => {
   };
   return jwt.sign(payload, process.env.JWT_SECRET_KEY, options);
 };
-export const RefreshAccessSign = ({ id }) => {
+export const RefreshAccessSign = ({ id,role }) => {
   const payload = {
     sub: id,
+    role:role,
+    ref:null,
+    tag:"Refresh"
   };
   const options = {
     expiresIn: REFRESH_AUTH_EXPIRES,

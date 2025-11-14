@@ -191,7 +191,7 @@ const _Create_New_Tenant = async (req, res) => {
     );
 
     // 5d. Create Initial Finance Document
-    await MainFinance.create([{ Tenant: tenantId }], { session: session }); // Uses model defaults
+    await MainFinance.create([{ Tenant: tenantId,rootUser:RootUserId }], { session: session }); // Uses model defaults
 
     // 5e. Create Initial Content/Announcement (Optional, but friendly!)
     await Announcement.create(

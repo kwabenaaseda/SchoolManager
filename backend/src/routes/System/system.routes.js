@@ -34,69 +34,69 @@ import { Create_New_Tenant } from "../../controllers/System/tenantLifeCycle.cont
 // ====================================================
 
 /**
- * @swagger
- * /api/v1/system/tenant:
- *   post:
- *     summary: Create a new tenant (school) and its first RootUser
- *     tags: [Tenant Lifecycle Management]
- *     description: Creates a brand new tenant organization and initial RootUser account
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *                 -tenantName,
- *                 -ownerPhone,
- *                 -ownerFirstName,
- *                 -ownerSurname,
- *                 -ownerEmail,
- *                 -ownerPassword,
- *                 -ownerGender,
- *                 -ownerDOB
- *                 -subscriptionPlan
- *             properties:
- *               tenantname:
- *                 type: string
- *                 example: "Springfield Elementary School"
- *               ownerFirstName:
- *                 type: string
- *                 example: "Jerry"
- *               ownerSurname:
- *                 type: string
- *                 example: "Springs"
- *               ownerGender:
- *                 type: string
- *                  enum: [male,female]
- *                 example: "male"
- *               ownerDOB:
- *                 type: string
- *                 example: "01/01/1919"
- *               ownerPhone:
- *                 type: string
- *                 example: "+000 123 456 789"
- *               ownerEmail:
- *                 type: string
- *                 format: email
- *                 example: "principal@springfield.edu"
- *               ownerPassword:
- *                 type: string
- *                 format: password
- *                 example: "SecurePassword123"
- *               subscriptionPlan:
- *                 type: string
- *                 enum: [basic,  standard, premium, enterprise]
- *                 example: "premium"
- *     responses:
- *       201:
- *         description: Tenant created successfully
- *       400:
- *         description: Invalid input data
- *       409:
- *         description: Tenant domain already exists
- */
-Systemrouter.post("/tenant",Firewall,Create_New_Tenant);
+* @swagger
+ * /api/v1/system/tenant:
+ *   post:
+ *     summary: Create a new tenant (school) and its first RootUser
+ *     tags: [Tenant Lifecycle Management]
+ *     description: Creates a brand new tenant organization and initial RootUser account
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *             - tenantName
+ *             - ownerPhone
+ *             - ownerFirstName
+ *             - ownerSurname
+ *             - ownerEmail
+ *             - ownerPassword
+ *             - ownerGender
+ *             - ownerDOB
+ *             - subscriptionPlan
+ *             properties:
+ *               tenantname:
+ *                 type: string
+ *                 example: "Springfield Elementary School"
+ *               ownerFirstName:
+ *                 type: string
+ *                 example: "Jerry"
+ *               ownerSurname:
+ *                 type: string
+ *                 example: "Springs"
+ *               ownerGender:
+ *                 type: string
+ *                  enum: [male,female]
+ *                 example: "male"
+ *               ownerDOB:
+ *                 type: string
+ *                 example: "01/01/1919"
+ *               ownerPhone:
+ *                 type: string
+ *                 example: "+000 123 456 789"
+ *               ownerEmail:
+ *                 type: string
+ *                 format: email
+ *                 example: "principal@springfield.edu"
+ *               ownerPassword:
+ *                 type: string
+ *                 format: password
+ *                 example: "SecurePassword123"
+ *               subscriptionPlan:
+ *                 type: string
+ *                 enum: [basic,  standard, premium, enterprise]
+ *                 example: "premium"
+ *     responses:
+ *       201:
+ *         description: Tenant created successfully
+ *       400:
+ *         description: Invalid input data
+ *       409:
+ *         description: Tenant domain already exists
+ */
+Systemrouter.post("/tenant", Firewall, Create_New_Tenant);
 
 /**
  * @swagger
@@ -367,7 +367,7 @@ Systemrouter.get("/system-user/:userId", Firewall, Get_User_Profile);
  *                 example: "Doe"
  *               registrationCode:
  *                 type: string
- *                 
+ *
  *     responses:
  *       201:
  *         description: System user created successfully
@@ -494,7 +494,7 @@ Systemrouter.put("/system-user/del/:userId", Firewall, Delete_User);
  *                         version:
  *                           type: string
  */
-Systemrouter.get("/system-health",Firewall, Get_System_Health);
+Systemrouter.get("/system-health", Firewall, Get_System_Health);
 
 // ====================================================
 // D. AUTHENTICATION
@@ -583,7 +583,7 @@ Systemrouter.post("/system-auth/login", Login);
  *       401:
  *         description: Invalid or expired refresh token
  */
-Systemrouter.post("/system-auth/refresh", Firewall, Refresh_Token);
+Systemrouter.get("/system-auth/refresh", Firewall, Refresh_Token);
 
 // -------------------
 // END SWAGGER DOCUMENTATION - SYSTEM ROUTES

@@ -9,7 +9,7 @@ const ExternalUserSchema = new mongoose.Schema(
     // The role for external users
     external_role: { 
       type: String, 
-      enum: ["Parent", "Guardian", "Shareholder", "Board Member"], 
+      enum: ["Parent-External", "Guardian-External", "Shareholder-External", "Board Member-External"], 
       required: true 
     },
     

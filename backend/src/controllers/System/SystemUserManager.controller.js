@@ -83,8 +83,8 @@ const _Create_New_User = async (req, res) => {
           surname: surname,
           email: email,
           password: password,
-          platform_role: "Pending",
-          isActive: false, // User is inactive until a SuperAdmin approves them.
+          platform_role: "Pending-SystemUser",
+          isActive: true, // User is inactive until a SuperAdmin approves them.
         },
       ],
       { session }
@@ -112,12 +112,34 @@ const _Create_New_User = async (req, res) => {
       _Create_New_User.name,
       `System User created and linked successfully: ${email}`
     );
+    const user = await SystemUser.findOne({ email: email });
+    if (!user) {
+      throw {
+        statusCode: 401,
+        message: "Invalid credentials.",
+        name: "AuthenticationError",
+      };
+    }
+    const accessToken = AccessSign({
+      id: user._id,
+      role: user.platform_role,
+      tenant: null,
+    });
+    const refreshToken = RefreshAccessSign({
+      id: user.id,
+      role: user.platform_role,
+    });
 
     // --- Post-Transaction Success ---
     return sendSuccessResponse(res, {
-      successMessage:
-        "System account created successfully. Awaiting administrator approval.",
-      data: { userId, email, platformRole: "Pending" },
+      successMessage: "System account created successfully.",
+      data: {
+        userId,
+        email,
+        platformRole: "Pending-SystemUser",
+        accessToken:accessToken,
+        refreshToken:refreshToken,
+      },
     });
   } catch (error) {
     await session.abortTransaction();
@@ -184,7 +206,10 @@ const _Login = async (req, res) => {
     role: user.platform_role,
     tenant: null,
   });
-  const refreshToken = RefreshAccessSign({ id: user._id });
+  const refreshToken = RefreshAccessSign({
+    id: user._id,
+    role: user.platform_role,
+  });
 
   // 5. Update last_login in RootUser (Fire-and-Forget)
   RootUser.findByIdAndUpdate(user.associated_rootuser_id, {
@@ -216,10 +241,10 @@ const _Get_User_Profile = async (req, res) => {
   // req.user.id is populated by the authentication middleware
   Logger.debug(
     _Get_User_Profile.name,
-    `Fetching profile for user ID: ${req.user.id}`
+    `Fetching profile for user ID: ${req.params.userId}`
   );
 
-  const userId = req.user.id;
+  const userId = req.params.userId;
 
   const user = await SystemUser.findById(userId).select("-password"); // Exclude password hash
 
@@ -338,13 +363,13 @@ const _Refresh_Token = async (req, res) => {
 
   // We assume an auth middleware has verified the refresh token and set req.user.id
 
-  const userId = req.user.id;
+  const userId = req.user._id;
   const user = await SystemUser.findById(userId).select("platform_role");
 
-  if (!user || !user.isActive) {
+  if (!user) {
     throw {
       statusCode: 403,
-      message: "Account inactive or invalid session. Please log in again.",
+      message: "Account inactive or invalid session. Please log in again.:"+userId,
       name: "TokenForbiddenError",
     };
   }

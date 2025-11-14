@@ -16,7 +16,7 @@ const UserSchema = new mongoose.Schema(
     },
 
     // 🔑 THE ACCESS CONTROL LINKS
-    role: { type: String, required: true }, // Simplified for now (Admin, Teacher, Student)
+    role: { type: String, required: true }, // Simplified for now (Admin-TenantUser, Teacher-TenantUser, Student-TenantUser)
     roleOverrides: { type: [String], default: [] }, // For granular permissions (Phase 7.5)
 
     // Optional links for query optimization
