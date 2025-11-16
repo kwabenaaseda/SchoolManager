@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
-import Card from "../Globals/Card.jsx";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import style from "../Components/Style/Page.module.css";
-import { useSearchParams } from "react-router-dom";
+import { systemAuthService } from "../../services/api/systemAuthService";
+import { tenantAuthService } from "../../services/api/tenantAuthService";
+import { buildApiUrl, API_CONFIG } from "../../services/api/config";
+
 
 // ----------------------------------------------------
-// A. ENHANCED DATA DEFINITION WITH SYSTEM ACCESS
+// A. ENHANCED DATA DEFINITION WITH ALL ACCESS TYPES
 // ----------------------------------------------------
 
-const SystemRegistrationContent = [
+const SchoolRegistrationContent = [
   {
-    operationType: "SYSTEM_SIGNUP",
+    operationType: "SCHOOL_SIGNUP",
     Contentdata: {
       title: "Register New School",
       subtitle: "Become a Root User",
@@ -24,12 +27,15 @@ const SystemRegistrationContent = [
       ]
     },
     formFields: [
-      { value: "tenantName", placeholder: "Institution Name", type: "text" },
-      { value: "ownerFirstName", placeholder: "First Name", type: "text" },
-      { value: "ownerSurname", placeholder: "Surname", type: "text" },
-      { value: "ownerEmail", placeholder: "Administrator Email", type: "email" },
-      { value: "ownerPassword", placeholder: "Secure Password", type: "password" },
-      { value: "subscriptionPlan", placeholder: "Subscription Plan", type: "select", options: ["Standard", "Premium", "Enterprise"] },
+      { value: "tenantName", placeholder: "Institution Name", type: "text", required: true },
+      { value: "ownerFirstName", placeholder: "First Name", type: "text", required: true },
+      { value: "ownerSurname", placeholder: "Surname", type: "text", required: true },
+      { value: "ownerEmail", placeholder: "Administrator Email", type: "email", required: true },
+      { value: "ownerPassword", placeholder: "Secure Password", type: "password", required: true },
+      { value: "ownerPhone", placeholder: "Phone Number", type: "text", required: true },
+      { value: "ownerGender", placeholder: "Gender", type: "select", options: ["male", "female"], required: true },
+      { value: "ownerDOB", placeholder: "Date of Birth", type: "date", required: true },
+      { value: "subscriptionPlan", placeholder: "Subscription Plan", type: "select", options: ["basic", "standard", "premium", "enterprise"], required: true },
     ],
   },
 ];
@@ -51,17 +57,15 @@ const TenantLoginContent = [
       ]
     },
     formFields: [
-      { value: "tenantId", placeholder: "School ID / Domain", type: "text" },
-      { value: "email", placeholder: "User Email or ID", type: "text" },
-      { value: "password", placeholder: "Password", type: "password" },
+      { value: "email", placeholder: "User Email", type: "email", required: true },
+      { value: "password", placeholder: "Password", type: "password", required: true },
     ],
   },
 ];
 
-// NEW: System Developer Access
 const SystemDeveloperContent = [
   {
-    operationType: "SYSTEM_DEVELOPER",
+    operationType: "SYSTEM_LOGIN",
     Contentdata: {
       title: "System Developer Access",
       subtitle: "Infrastructure & Engineering",
@@ -74,189 +78,158 @@ const SystemDeveloperContent = [
         "API management",
         "Tenant oversight"
       ],
-      accessLevel: "system",
-      requiresSecurityKey: true
+      accessLevel: "system"
     },
     formFields: [
-      { value: "systemEmail", placeholder: "System Admin Email", type: "email" },
-      { value: "systemPassword", placeholder: "System Password", type: "password" },
-      { value: "securityKey", placeholder: "Security Key / 2FA", type: "password" },
+      { value: "email", placeholder: "System Admin Email", type: "email", required: true },
+      { value: "password", placeholder: "System Password", type: "password", required: true },
+    ],
+  },
+];
+
+// NEW: System User Registration
+const SystemRegistrationContent = [
+  {
+    operationType: "SYSTEM_SIGNUP",
+    Contentdata: {
+      title: "Register System User",
+      subtitle: "Platform Administrator Registration",
+      description: "Create a new system administrator account with platform-wide access and management privileges.",
+      buttonName: "Register System Account",
+      icon: "👑",
+      features: [
+        "Platform-wide access",
+        "Tenant management",
+        "System monitoring", 
+        "User administration",
+        "Audit and security"
+      ],
+      accessLevel: "system",
+      requiresRegistrationCode: true
+    },
+    formFields: [
+      { value: "firstName", placeholder: "First Name", type: "text", required: true },
+      { value: "surname", placeholder: "Surname", type: "text", required: true },
+      { value: "email", placeholder: "System Email", type: "email", required: true },
+      { value: "password", placeholder: "Secure Password", type: "password", required: true },
+      { value: "registrationCode", placeholder: "Registration Code", type: "password", required: true },
     ],
   },
 ];
 
 // ----------------------------------------------------
-// B. ENHANCED FORM COMPONENTS WITH SYSTEM ACCESS
+// B. ENHANCED FORM COMPONENTS WITH REAL API CALLS
 // ----------------------------------------------------
 
 const AuthForm = ({ operation, onBack }) => {
+  const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
   const getContent = () => {
     switch(operation) {
-      case 'SYSTEM_SIGNUP': return SystemRegistrationContent[0];
+      case 'SCHOOL_SIGNUP': return SchoolRegistrationContent[0];
       case 'TENANT_LOGIN': return TenantLoginContent[0];
-      case 'SYSTEM_DEVELOPER': return SystemDeveloperContent[0];
-      default: return SystemRegistrationContent[0];
+      case 'SYSTEM_LOGIN': return SystemDeveloperContent[0];
+      case 'SYSTEM_SIGNUP': return SystemRegistrationContent[0];
+      default: return SchoolRegistrationContent[0];
     }
   };
 
   const content = getContent();
-  const [formData, setFormData] = useState({});
-  const [showSecurityNotice, setShowSecurityNotice] = useState(operation === 'SYSTEM_DEVELOPER');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (operation === 'SYSTEM_DEVELOPER') {
-      // Enhanced security for system access
-      console.log('SYSTEM DEVELOPER ACCESS ATTEMPT:', {
-        ...formData,
-        timestamp: new Date().toISOString(),
-        ip: 'logged',
-        userAgent: navigator.userAgent
-      });
-      alert('System developer authentication would validate security keys and 2FA');
-    } else {
-      console.log(`${operation} form submitted:`, formData);
-      alert(`${operation === 'SYSTEM_SIGNUP' ? 'School registration' : 'Login'} functionality would be implemented here`);
+    setLoading(true);
+    setError('');
+
+    try {
+      let result;
+      
+      if (operation === 'SCHOOL_SIGNUP') {
+        // Create new tenant (school registration) - using environment-aware URL
+        const response = await fetch(buildApiUrl(API_CONFIG.system.tenant), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'School registration failed');
+        }
+
+        result = await response.json();
+        console.log('School registration successful:', result);
+        
+        // After successful registration, show success message
+        alert('School registered successfully! You can now login with your credentials.');
+        onBack(); // Go back to main auth page
+        
+      } else if (operation === 'TENANT_LOGIN') {
+        // Tenant user login - using tenant auth service
+        result = await tenantAuthService.login(formData);
+        console.log('Tenant login successful:', result);
+        
+        // Store tenant token and redirect
+        if (result.data?.accessToken) {
+          localStorage.setItem('tenant_access_token', result.data.accessToken);
+          localStorage.setItem('user_role', result.data.role);
+          localStorage.setItem('tenant_id', result.data.tenantId);
+          navigate('/admin/dashboard'); // Redirect to tenant admin dashboard
+        }
+        
+      } else if (operation === 'SYSTEM_LOGIN') {
+        // System user login - using system auth service
+        result = await systemAuthService.login(formData);
+        console.log('System login successful:', result);
+        
+        // Store system token and redirect to system dashboard
+        if (result.data?.accessToken) {
+          localStorage.setItem('system_access_token', result.data.accessToken);
+          localStorage.setItem('user_role', result.data.platformRole);
+          navigate('/system/dashboard');
+        }
+        
+      } else if (operation === 'SYSTEM_SIGNUP') {
+        // System user registration - using system auth service
+        result = await systemAuthService.register(formData);
+        console.log('System user registration successful:', result);
+        
+        // After successful registration, automatically log them in
+        if (result.data?.accessToken) {
+          localStorage.setItem('system_access_token', result.data.accessToken);
+          localStorage.setItem('user_role', result.data.platformRole);
+          navigate('/system/dashboard');
+        }
+      }
+    } catch (error) {
+      console.error(`${operation} failed:`, error);
+      setError(error.message || `Failed to ${operation.includes('SIGNUP') ? 'register' : 'login'}. Please try again.`);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  return (
-    <div className={style.authFlowContainer}>
-      <div className={style.authHeader}>
-        <button onClick={onBack} className={style.backButton}>
-          ← Back to Options
-        </button>
-        <div className={`${style.authIcon} ${operation === 'SYSTEM_DEVELOPER' ? style.systemIcon : ''}`}>
-          {content.Contentdata.icon}
-        </div>
-        <h2>{content.Contentdata.title}</h2>
-        <p>{content.Contentdata.subtitle}</p>
-        
-        {operation === 'SYSTEM_DEVELOPER' && (
-          <div className={style.securityBadge}>
-            🔒 System-Level Access
-          </div>
-        )}
-      </div>
-
-      {showSecurityNotice && operation === 'SYSTEM_DEVELOPER' && (
-        <div className={style.securityNotice}>
-          <h4>⚠️ Security Notice</h4>
-          <p>You are accessing the system administration panel. All actions are logged and monitored.</p>
-          <button 
-            onClick={() => setShowSecurityNotice(false)}
-            className={style.acknowledgeButton}
-          >
-            I Understand
-          </button>
-        </div>
-      )}
-
-      <div className={style.authFormWrapper}>
-        <form onSubmit={handleSubmit} className={style.authForm}>
-          {content.formFields.map((field, index) => (
-            <div key={index} className={style.formField}>
-              <label className={style.inputLabel}>
-                {field.placeholder}
-                {field.value === 'securityKey' && <span className={style.required}> *</span>}
-              </label>
-              {field.type === 'select' ? (
-                <select
-                  className={style.authInput}
-                  onChange={(e) => handleInputChange(field.value, e.target.value)}
-                  required
-                >
-                  <option value="">Select {field.placeholder}</option>
-                  {field.options.map(option => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type={field.type}
-                  placeholder={field.placeholder}
-                  className={style.authInput}
-                  onChange={(e) => handleInputChange(field.value, e.target.value)}
-                  required
-                />
-              )}
-            </div>
-          ))}
-          
-          <button type="submit" className={`
-            ${style.authSubmitButton} 
-            ${operation === 'SYSTEM_DEVELOPER' ? style.systemSubmitButton : ''}
-          `}>
-            {content.Contentdata.buttonName}
-          </button>
-        </form>
-
-        <div className={style.authFeatures}>
-          <h4>Access Includes:</h4>
-          <ul>
-            {content.Contentdata.features.map((feature, index) => (
-              <li key={index}>
-                <span className={style.featureIcon}>✓</span> 
-                {feature}
-              </li>
-            ))}
-          </ul>
-          
-          {operation === 'SYSTEM_DEVELOPER' && (
-            <div className={style.systemAccessNote}>
-              <p>🔍 All activities are audited</p>
-              <p>📝 Comprehensive logging enabled</p>
-              <p>🚨 Security monitoring active</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className={style.authFooter}>
-        {operation !== 'SYSTEM_DEVELOPER' && (
-          <button 
-            onClick={() => alert('Password reset flow would be initiated here')} 
-            className={style.authLink}
-          >
-            Forgot your credentials?
-          </button>
-        )}
-        <p className={style.authNote}>
-          {operation === 'SYSTEM_SIGNUP' 
-            ? 'By registering, you agree to our Terms of Service and Privacy Policy'
-            : operation === 'SYSTEM_DEVELOPER'
-            ? 'System access requires multi-factor authentication and security clearance'
-            : 'Secure login with multi-tenant data isolation'
-          }
-        </p>
-      </div>
-    </div>
-  );
-};
 
 // Enhanced Card Component with System Access
 const EnhancedCard = ({ operationType, Contentdata, setFlow }) => {
-  const isSystemAccess = operationType === 'SYSTEM_DEVELOPER';
+  const isSystemAccess = operationType.includes('SYSTEM');
+  const isRegistration = operationType.includes('SIGNUP');
   
   return (
     <div 
-      className={`
-        ${style.enhancedCard} 
-        ${isSystemAccess ? style.systemCard : ''}
-      `}
+      className={`${style.enhancedCard} ${isSystemAccess ? style.systemCard : ''}`}
       onClick={() => setFlow(operationType)}
     >
-      {isSystemAccess && <div className={style.secureRibbon}>SECURE ACCESS</div>}
+      {isSystemAccess && <div className={style.secureRibbon}>
+        {isRegistration ? 'SECURE REGISTRATION' : 'SYSTEM ACCESS'}
+      </div>}
       
-      <div className={`
-        ${style.cardIcon} 
-        ${isSystemAccess ? style.systemIcon : ''}
-      `}>
+      <div className={`${style.cardIcon} ${isSystemAccess ? style.systemIcon : ''}`}>
         {Contentdata.icon}
       </div>
       
@@ -265,23 +238,19 @@ const EnhancedCard = ({ operationType, Contentdata, setFlow }) => {
         <p>{Contentdata.description}</p>
         <div className={style.cardFeatures}>
           {Contentdata.features.slice(0, 2).map((feature, index) => (
-            <span key={index} className={`
-              ${style.featureTag} 
-              ${isSystemAccess ? style.systemFeature : ''}
-            `}>
+            <span key={index} className={`${style.featureTag} ${isSystemAccess ? style.systemFeature : ''}`}>
               ✓ {feature}
             </span>
           ))}
           {isSystemAccess && (
-            <span className={style.securityFeature}>🔒 Enhanced Security</span>
+            <span className={style.securityFeature}>
+              {isRegistration ? '🔑 Code Required' : '🔒 Enhanced Security'}
+            </span>
           )}
         </div>
       </div>
       
-      <button className={`
-        ${style.cardButton} 
-        ${isSystemAccess ? style.systemButton : ''}
-      `}>
+      <button className={`${style.cardButton} ${isSystemAccess ? style.systemButton : ''}`}>
         {Contentdata.buttonName} →
       </button>
     </div>
@@ -293,7 +262,13 @@ const DeveloperAccessTrigger = ({ onActivate }) => {
   const [clickCount, setClickCount] = useState(0);
   const [showTrigger, setShowTrigger] = useState(false);
 
-  const handleSecretClick = () => {
+  const handleSecretClick = (e) => {
+    // Check for Ctrl/Cmd key
+    if (e.ctrlKey || e.metaKey) {
+      onActivate();
+      return;
+    }
+
     const newCount = clickCount + 1;
     setClickCount(newCount);
     
@@ -308,7 +283,7 @@ const DeveloperAccessTrigger = ({ onActivate }) => {
       <div 
         className={style.secretArea}
         onClick={handleSecretClick}
-        title="Click multiple times to reveal system access"
+        title="Click multiple times or hold Ctrl/Cmd while clicking to reveal system access"
       />
       
       {showTrigger && (
@@ -335,48 +310,57 @@ const DeveloperAccessTrigger = ({ onActivate }) => {
 };
 
 // ----------------------------------------------------
-// C. MAIN AUTH COMPONENT WITH SYSTEM ACCESS
+// C. MAIN AUTH COMPONENT WITH ALL ACCESS TYPES
 // ----------------------------------------------------
 
 const Auth = () => {
-    const [flow, setFlow] = useState("welcome");
+  const [flow, setFlow] = useState("welcome");
   const [showSystemAccess, setShowSystemAccess] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-  // Check URL parameters on component mount
+  // Check if user is already logged in (either system or tenant)
   useEffect(() => {
-    const accessType = searchParams.get('access');
-    if (accessType === 'developer') {
+    const systemToken = localStorage.getItem('system_access_token');
+    const tenantToken = localStorage.getItem('tenant_access_token');
+    
+    if (systemToken) {
+      navigate('/system/dashboard');
+    } else if (tenantToken) {
+      navigate('/admin/dashboard');
+    }
+  }, [navigate]);
+
+  // Check URL parameters for redirect
+  useEffect(() => {
+    const redirect = searchParams.get('redirect');
+    if (redirect === 'system') {
       setShowSystemAccess(true);
     }
   }, [searchParams]);
 
   const resetFlow = () => {
     setFlow("welcome");
-    setSearchParams({}); // Clear URL params
   };
 
   const activateSystemAccess = () => {
     setShowSystemAccess(true);
-    setSearchParams({ access: 'developer' });
   };
 
   const handleCardClick = (operationType) => {
     setFlow(operationType);
-    if (operationType === 'SYSTEM_DEVELOPER') {
-      setSearchParams({ access: 'developer' });
-    } else {
-      setSearchParams({});
-    }
   };
+
   const DisplayComponent = () => {
     switch (flow) {
-      case "SYSTEM_SIGNUP":
-        return <AuthForm operation="SYSTEM_SIGNUP" onBack={resetFlow} />;
+      case "SCHOOL_SIGNUP":
+        return <AuthForm operation="SCHOOL_SIGNUP" onBack={resetFlow} />;
       case "TENANT_LOGIN":
         return <AuthForm operation="TENANT_LOGIN" onBack={resetFlow} />;
-      case "SYSTEM_DEVELOPER":
-        return <AuthForm operation="SYSTEM_DEVELOPER" onBack={resetFlow} />;
+      case "SYSTEM_LOGIN":
+        return <AuthForm operation="SYSTEM_LOGIN" onBack={resetFlow} />;
+      case "SYSTEM_SIGNUP":
+        return <AuthForm operation="SYSTEM_SIGNUP" onBack={resetFlow} />;
       default:
         return (
           <div className={style.authWelcome}>
@@ -391,7 +375,7 @@ const Auth = () => {
             
             <div className={style.authOptions}>
               <div className={style.optionsGrid}>
-                {SystemRegistrationContent.map((element) => (
+                {SchoolRegistrationContent.map((element) => (
                   <EnhancedCard
                     key={element.operationType}
                     operationType={element.operationType}
@@ -409,15 +393,27 @@ const Auth = () => {
                   />
                 ))}
 
-                {/* System Developer Access - Conditionally Rendered */}
-                {showSystemAccess && SystemDeveloperContent.map((element) => (
-                  <EnhancedCard
-                    key={element.operationType}
-                    operationType={element.operationType}
-                    Contentdata={element.Contentdata}
-                    setFlow={setFlow}
-                  />
-                ))}
+                {/* System Access - Conditionally Rendered */}
+                {showSystemAccess && (
+                  <>
+                    {SystemRegistrationContent.map((element) => (
+                      <EnhancedCard
+                        key={element.operationType}
+                        operationType={element.operationType}
+                        Contentdata={element.Contentdata}
+                        setFlow={setFlow}
+                      />
+                    ))}
+                    {SystemDeveloperContent.map((element) => (
+                      <EnhancedCard
+                        key={element.operationType}
+                        operationType={element.operationType}
+                        Contentdata={element.Contentdata}
+                        setFlow={setFlow}
+                      />
+                    ))}
+                  </>
+                )}
               </div>
             </div>
 
@@ -426,7 +422,7 @@ const Auth = () => {
               
               {!showSystemAccess && (
                 <p className={style.systemAccessHint}>
-                  System administrators: Contact engineering for access credentials
+                  System administrators: Hold Ctrl/Cmd while clicking or contact engineering for access
                 </p>
               )}
             </div>
@@ -452,9 +448,9 @@ const Auth = () => {
                 <strong>Teachers/Students:</strong> Click "School Portal Access" 
               </div>
               <div className={style.accessMethod}>
-                <strong>Developers:</strong> 
+                <strong>System Admins:</strong> 
                 <span className={style.developerHint}>
-                  Hold Ctrl/Cmd while clicking header button or contact engineering
+                  Hold Ctrl/Cmd while clicking to reveal system options
                 </span>
               </div>
             </div>

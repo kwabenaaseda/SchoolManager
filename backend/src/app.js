@@ -28,6 +28,7 @@ const allowedOrigins =
       ]
     : [
         // List your production front-end domains here (e.g., 'https://your-app-frontend.com')
+        "https://vitalearn.netlify.app"
       ];
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
