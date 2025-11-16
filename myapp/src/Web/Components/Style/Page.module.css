@@ -2556,3 +2556,197 @@
     text-align: center;
   }
 }
+
+/* === Mobile-Specific Auth Styles === */
+
+.mobileAccessBanner {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  padding: 1em;
+  margin-bottom: 2em;
+  text-align: center;
+}
+
+.bannerContent {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  justify-content: center;
+}
+
+.bannerContent span {
+  font-size: 1.5em;
+}
+
+.bannerContent strong {
+  color: var(--accent-primary);
+}
+
+.bannerContent p {
+  margin: 0.3em 0 0 0;
+  opacity: 0.8;
+  font-size: 0.9em;
+}
+
+.mobileSecretArea {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  z-index: 100;
+}
+
+.mobileTapHint {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  cursor: pointer;
+}
+
+.tapInstruction {
+  text-align: center;
+  padding: 1em;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 8px;
+  border: 1px dashed rgba(59, 130, 246, 0.3);
+}
+
+.tapInstruction span {
+  font-size: 2em;
+  display: block;
+  margin-bottom: 0.5em;
+}
+
+.tapInstruction p {
+  margin: 0;
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+.tapProgress {
+  margin-top: 0.5em;
+  padding: 0.3em 0.6em;
+  background: var(--accent-primary);
+  color: white;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+.mobileDeveloperTrigger {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1em;
+}
+
+.triggerContent {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 2em;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  border: 2px solid var(--accent-primary);
+}
+
+.triggerContent h4 {
+  margin-bottom: 0.5em;
+  color: var(--accent-primary);
+}
+
+.triggerContent p {
+  opacity: 0.8;
+  margin-bottom: 1.5em;
+}
+
+.triggerActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+}
+
+.triggerButton {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  color: white;
+  border: none;
+  padding: 1em;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1.1em;
+}
+
+.triggerCancel {
+  background: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--border-line);
+  padding: 0.8em;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Enhanced mobile responsive styles for auth */
+@media (max-width: 768px) {
+  .authPage {
+    padding: 1em;
+  }
+  
+  .authFlowContainer {
+    padding: 1.5em;
+    margin: 1em;
+  }
+  
+  .optionsGrid {
+    grid-template-columns: 1fr;
+    gap: 1em;
+  }
+  
+  .enhancedCard {
+    padding: 1.5em;
+  }
+  
+  .cardIcon {
+    font-size: 2.5em;
+  }
+  
+  .welcomeHeader {
+    margin-bottom: 2em;
+  }
+  
+  .authTitle {
+    font-size: 2.2em;
+  }
+  
+  .authSubtitle {
+    font-size: 1.1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .authTitle {
+    font-size: 1.8em;
+  }
+  
+  .authFlowContainer {
+    padding: 1em;
+    margin: 0.5em;
+  }
+  
+  .enhancedCard {
+    padding: 1em;
+  }
+}
