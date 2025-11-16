@@ -1,158 +1,192 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import style from './Header.module.css'
-import { NavLink, useNavigate } from 'react-router-dom';
 
 const Header = () => {
-  const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [mobileClickCount, setMobileClickCount] = useState(0);
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [systemAccessClicks, setSystemAccessClicks] = useState(0)
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMenuOpen(false)
+  }, [location])
+
+  // System access detection
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault()
+        navigate('/auth?access=developer')
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyPress)
+    return () => document.removeEventListener('keydown', handleKeyPress)
+  }, [navigate])
 
   const handleAuthClick = (e) => {
-    // Close mobile menu if open
-    if (isMobileMenuOpen) {
-      setIsMobileMenuOpen(false);
-    }
-
-    // Ctrl/Cmd + Click for developer access (desktop)
     if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      navigate('/auth?access=developer');
-      return;
+      e.preventDefault()
+      navigate('/auth?access=developer')
+      return
     }
-    
-    // Regular auth navigation
-    navigate('/auth');
-  };
+    navigate('/auth')
+  }
 
-  const handleMobileAuthClick = (e) => {
-    e.preventDefault();
-    
-    // Increment tap counter for mobile
-    const newCount = mobileClickCount + 1;
-    setMobileClickCount(newCount);
+  const handleMobileAuthClick = () => {
+    const newCount = systemAccessClicks + 1
+    setSystemAccessClicks(newCount)
 
     if (newCount >= 3) {
-      // Triple tap detected - show developer access
-      setMobileClickCount(0);
-      navigate('/auth?access=developer');
-      setIsMobileMenuOpen(false);
+      navigate('/auth?access=developer')
+      setSystemAccessClicks(0)
     } else {
-      // Regular auth access
-      navigate('/auth');
-      setIsMobileMenuOpen(false);
+      navigate('/auth')
     }
 
-    // Reset counter after 2 seconds
-    setTimeout(() => setMobileClickCount(0), 2000);
-  };
+    setTimeout(() => setSystemAccessClicks(0), 2000)
+  }
 
-  const handleLogoClick = (e) => {
-    const newCount = mobileClickCount + 1;
-    setMobileClickCount(newCount);
-    
-    // Triple click logo for system access hint (desktop)
-    if (newCount >= 3) {
-      alert('💡 Developer Tip: Hold Ctrl/Cmd while clicking "Register/Login" for system access\n📱 Mobile: Triple-tap the auth button');
-      setMobileClickCount(0);
-    }
-    
-    // Reset counter after 2 seconds
-    setTimeout(() => setMobileClickCount(0), 2000);
-  };
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen)
+  }
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
+  const navItems = [
+    { path: '/', label: 'Home', icon: '🏠' },
+    { path: '/about', label: 'About', icon: 'ℹ️' },
+    { path: '/docs', label: 'Docs', icon: '📚' },
+    { path: '/contact', label: 'Contact', icon: '📞' },
+  ]
 
   return (
-    <header className={style.header}>
-      <div className={style.logo_container}>
-        <h1 className={style.logoText} onClick={handleLogoClick} style={{cursor: 'pointer'}}>
-          Vitalearn
-        </h1>
-      </div> 
+    <>
+      <header className={`${style.header} ${isScrolled ? style.scrolled : ''}`}>
+        <div className={style.container}>
+          {/* Logo */}
+          <div className={style.logo}>
+            <NavLink to="/" className={style.logoLink}>
+              <span className={style.logoIcon}>🎓</span>
+              <span className={style.logoText}>Vitalearn</span>
+            </NavLink>
+          </div>
 
-      {/* Desktop Navigation */}
-      <ul className={`${style.Nav} ${style.desktopNav}`}>
-        <NavLink to='/' onClick={closeMobileMenu}><li>Home</li></NavLink>
-        <NavLink to='/about' onClick={closeMobileMenu}><li>About</li></NavLink>
-        <NavLink to='/docs' onClick={closeMobileMenu}><li>Documentation</li></NavLink>
-        <NavLink to='/contact' onClick={closeMobileMenu}><li>Contact</li></NavLink>
-        <button 
-          onClick={handleAuthClick}
-          className={style.Auth}
-          title="Click for regular access | Ctrl/Cmd+Click for developer access"
-        >
-          Register/Login
-        </button>
-      </ul>
+          {/* Desktop Navigation */}
+          <nav className={style.desktopNav}>
+            <ul className={style.navList}>
+              {navItems.map((item) => (
+                <li key={item.path} className={style.navItem}>
+                  <NavLink
+                    to={item.path}
+                    className={({ isActive }) => 
+                      `${style.navLink} ${isActive ? style.active : ''}`
+                    }
+                  >
+                    <span className={style.navIcon}>{item.icon}</span>
+                    {item.label}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-      {/* Mobile Menu Button */}
-      <button 
-        className={style.mobileMenuButton}
-        onClick={toggleMobileMenu}
-        aria-label="Toggle navigation menu"
-      >
-        <span className={style.hamburger}></span>
-        <span className={style.hamburger}></span>
-        <span className={style.hamburger}></span>
-      </button>
-
-      {/* Mobile Navigation */}
-      <div className={`${style.mobileNav} ${isMobileMenuOpen ? style.mobileNavOpen : ''}`}>
-        <div className={style.mobileNavOverlay} onClick={closeMobileMenu}></div>
-        <div className={style.mobileNavContent}>
-          <div className={style.mobileNavHeader}>
-            <h3>Menu</h3>
-            <button 
-              className={style.mobileNavClose}
-              onClick={closeMobileMenu}
-              aria-label="Close menu"
+          {/* Auth Section */}
+          <div className={style.authSection}>
+            <button
+              onClick={handleAuthClick}
+              className={style.authButton}
+              title="Click to access • Ctrl/Cmd+K for developer access"
             >
-              ×
+              <span className={style.authIcon}>🔐</span>
+              <span className={style.authText}>Access</span>
             </button>
           </div>
-          
-          <nav className={style.mobileNavLinks}>
-            <NavLink to='/' onClick={closeMobileMenu} className={style.mobileNavLink}>
-              <span>🏠</span> Home
-            </NavLink>
-            <NavLink to='/about' onClick={closeMobileMenu} className={style.mobileNavLink}>
-              <span>ℹ️</span> About
-            </NavLink>
-            <NavLink to='/docs' onClick={closeMobileMenu} className={style.mobileNavLink}>
-              <span>📚</span> Documentation
-            </NavLink>
-            <NavLink to='/contact' onClick={closeMobileMenu} className={style.mobileNavLink}>
-              <span>📞</span> Contact
-            </NavLink>
-            
-            <div className={style.mobileAuthSection}>
-              <button 
-                onClick={handleMobileAuthClick}
-                className={style.mobileAuthButton}
-                title="Tap once for regular access | Triple-tap for developer access"
-              >
-                <span>🔐</span> Register/Login
-                {mobileClickCount > 0 && (
-                  <span className={style.tapCounter}>
-                    Taps: {mobileClickCount}/3
-                  </span>
-                )}
-              </button>
-              
-              <div className={style.mobileAuthHint}>
-                <small>💡 Triple-tap for developer access</small>
-              </div>
-            </div>
-          </nav>
+
+          {/* Mobile Menu Button */}
+          <button
+            className={`${style.menuButton} ${isMenuOpen ? style.menuOpen : ''}`}
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
         </div>
+      </header>
+
+      {/* Mobile Navigation Overlay */}
+      <div className={`${style.mobileOverlay} ${isMenuOpen ? style.overlayOpen : ''}`}>
+        <nav className={style.mobileNav}>
+          <div className={style.mobileHeader}>
+            <span className={style.mobileTitle}>Menu</span>
+            <button
+              className={style.closeButton}
+              onClick={toggleMenu}
+              aria-label="Close menu"
+            >
+              <span>×</span>
+            </button>
+          </div>
+
+          <ul className={style.mobileNavList}>
+            {navItems.map((item) => (
+              <li key={item.path} className={style.mobileNavItem}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) => 
+                    `${style.mobileNavLink} ${isActive ? style.mobileActive : ''}`
+                  }
+                  onClick={toggleMenu}
+                >
+                  <span className={style.mobileNavIcon}>{item.icon}</span>
+                  {item.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+
+          <div className={style.mobileAuth}>
+            <button
+              onClick={handleMobileAuthClick}
+              className={style.mobileAuthButton}
+            >
+              <span className={style.mobileAuthIcon}>🔐</span>
+              <span className={style.mobileAuthText}>
+                {systemAccessClicks > 0 ? `${systemAccessClicks}/3 taps` : 'Access Platform'}
+              </span>
+            </button>
+            {systemAccessClicks > 0 && (
+              <div className={style.accessHint}>
+                Triple-tap for developer access
+              </div>
+            )}
+          </div>
+
+          <div className={style.mobileFooter}>
+            <div className={style.keyboardShortcut}>
+              <kbd>Ctrl</kbd> + <kbd>K</kbd> for developer access
+            </div>
+          </div>
+        </nav>
       </div>
-    </header>
+
+      {/* Backdrop */}
+      {isMenuOpen && (
+        <div className={style.backdrop} onClick={toggleMenu} />
+      )}
+    </>
   )
 }
 
