@@ -33,6 +33,7 @@ html {
 }
 
 body {
+    margin-top:5em;
     background-color: var(--bg-main);
     color: var(--text-main);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
