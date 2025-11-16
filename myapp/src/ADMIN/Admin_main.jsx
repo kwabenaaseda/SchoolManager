@@ -10,6 +10,7 @@ import Courses_manager from './Courses_manager/Course_manager.jsx'
 import Signup_manager from './Auth/Signup_manager.jsx'
 import Login_manager from './Auth/Login_manager.jsx'
 import Annoucement_manager from './Annoucement_manager/Annoucement_manager.jsx'
+import logo from '../assets/LogoIsland.png'
 const Admin_main = () => {
   return (
     
@@ -25,7 +26,10 @@ const Admin_main = () => {
       <Route path="/signup/*" element={<Signup_manager />} />
       <Route path="/login/*" element={<Login_manager />} />
       <Route path="/announcements/*" element={<Annoucement_manager />} />
-      <Route path="*" element={<h1>404 - Page Not Found</h1>} />
+      <Route path="*" element={<div className='NOPAGE'>
+     <img src={logo} alt="logo" />
+           <h1>404 - Page Not Found</h1>
+           </div>} />
        </Routes>
     
   )

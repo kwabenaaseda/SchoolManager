@@ -3,7 +3,6 @@ import { Routes, Route } from "react-router-dom";
 import Admin_main from './ADMIN/Admin_main'
 import './Globals/index.css'
 import Web_main from "./Web/Web_main";
-import HomePage from "./Web/Pages/HomePage";
 
 function App() {
   return (

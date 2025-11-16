@@ -1,0 +1,77 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100px; /* Fixed height for header */
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-line);
+    padding: 0 4em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+}
+
+.logo_container {
+    display: flex;
+    align-items: center;
+}
+
+.logoText {
+    font-size: 2em;
+    font-weight: bold;
+    color: var(--accent-primary);
+}
+
+.Nav {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.Nav li {
+    font-size: 1.1em;
+    color: var(--text-main);
+    transition: color 0.3s;
+}
+
+.Nav a {
+    text-decoration: none;
+    padding: 5px 0;
+    border-bottom: 2px solid transparent;
+}
+
+.Nav a:hover li {
+    color: var(--accent-primary);
+}
+
+.Auth {
+    background-color: var(--accent-secondary);
+    color: var(--bg-main) !important;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.Auth:hover {
+    background-color: #2d9460; /* Darker green */
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 0 1em;
+        height: 80px;
+    }
+    .Nav {
+        gap: 15px;
+    }
+    .Nav li {
+        font-size: 0.9em;
+    }
+    .Auth {
+        padding: 8px 15px;
+    }
+}

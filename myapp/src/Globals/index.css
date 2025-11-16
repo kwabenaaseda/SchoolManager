@@ -1,142 +1,70 @@
-/* index.css - FINAL SYNCHRONIZED THEME & LAYOUT */
-
-/* --- 1. DEFAULT (DARK) THEME VARIABLES --- */
+/* index.css - ENHANCED MINIMALIST VERSION */
 :root {
-    --bg-main: #0b111e;     /* Deep dark blue/black for the body */
-    --bg-card: #1a202c;     /* Slightly lighter dark blue for cards/containers */
-    --text-main: #e2e8f0;   /* Light gray for main text */
-    --accent-primary: #4299e1; /* Bright blue for accents and links */
-    --accent-secondary: #38a169; /* Teal/Green for success/secondary accents */
-    --border-line: #2d3748; /* Dark gray for subtle borders */
+    /* Dark Theme (Default) */
+    --bg-main: #0f172a;
+    --bg-card: #1e293b;
+    --text-main: #f1f5f9;
+    --accent-primary: #3b82f6;
+    --accent-secondary: #10b981;
+    --border-line: #334155;
+    --gradient-start: #6366f1;
+    --gradient-end: #3b82f6;
 }
 
-/* --- 2. LIGHT THEME OVERRIDE (Toggle this class on <html>) --- */
 .light-theme {
-    --bg-main: #ffffff; 
-    --bg-card: #f7fafc; 
-    --text-main: #1a202c;
-    --accent-primary: #3182ce;
-    --accent-secondary: #2d9460;
+    --bg-main: #ffffff;
+    --bg-card: #f8fafc;
+    --text-main: #1e293b;
+    --accent-primary: #2563eb;
+    --accent-secondary: #059669;
     --border-line: #e2e8f0;
+    --gradient-start: #4f46e5;
+    --gradient-end: #2563eb;
 }
 
-/* --- 3. GLOBAL RESET & VARIABLE APPLICATION --- */
 * {
-    padding: 0;
     margin: 0;
+    padding: 0;
     box-sizing: border-box;
-    font-family: Garamond, Arial, Helvetica, sans-serif;
-    scrollbar-width: none;
-    scrollbar-color: var(--border-line) transparent;
 }
 
-/* Apply theme variables to BODY */
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     background-color: var(--bg-main);
     color: var(--text-main);
-    transition: background-color 0.3s;
-}
-.searchContainer {
-    border: 1px solid var(--border-color);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 330px;
-    max-height: 50px;
-    min-height: 40px;
-    border-radius: 7px;
-    padding: 0;
-    box-sizing: border-box;
-    background-color: var(--card-bg-color);
-}
-.searchButton {
-    border: none;
-    width: 11%;
-    border-radius: 7px 0 0 7px; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 6px;
-    cursor: pointer;
-    background-color: transparent;
-    color: var(--primary-color); /* Added color for search icon/text */
-}
-.search {
-    width: 100%;
-    padding: 11px;
-    border-radius: 0 7px 7px 0;
-    border: none;
-    background-color: var(--card-bg-color);
-    color: var(--text-color);
-}
-.search::placeholder {
-    color: #a0aec0;
-}
-.search:focus-visible {
-    color: var(--text-color);
-    border: 1px solid var(--primary-color);
-    outline: none;
-}
-/* Apply theme variables to core components */
-.searchContainer {
-    border: 1px solid var(--border-line);
-    background-color: var(--bg-card); 
-}
-.searchButton { color: var(--accent-primary); }
-.search {
-    background-color: var(--bg-card);
-    color: var(--text-main);
-}
-.search:focus-visible {
-    color: var(--text-main);
-    border: 1px solid var(--accent-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
 }
 
-/* SIDE MENU (Fixed Position - 250px) */
-.sideMenu {
-    border-right: 1px solid var(--border-line);
-    background-color: var(--bg-card); 
-    color: var(--text-main); 
-    /* ... rest of sideMenu styles ... */
-    max-width: 250px; 
-    min-width: 250px;
-    position: fixed;
-    z-index: 1000;
-    max-height: 100dvh;
-    min-height: 98dvh; 
-    /* Menu visibility classes are critical */
-    overflow-y: auto;
+/* Enhanced Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.2;
 }
-.menuHidden { transform: translateX(-250px); }
-.menuVisible { transform: translateX(0); }
 
-/* MAIN CONTENT LAYOUT (CRITICAL FOR MOVING SCREEN) */
-main {
-    display: flex;
-    flex-direction: column;
-    min-height: 100dvh;
-    transition: margin-left 0.3s, width 0.3s;
+/* Smooth transitions for theme switching */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
-.menuOpen {
-    width: calc(100% - 250px);
-    margin-left: 250px; /* Shifts content away from 250px menu */
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
 }
-.menuClosed {
-    width: 100%;
-    margin-left: 0;
+
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
 }
-.display {
-    background-color: var(--bg-main);
-    color: var(--text-main);
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border-radius: 4px;
 }
-.display {
-    width: 100%;
-    display: flex;
-    flex-direction: column; 
-    min-height: calc(100dvh - 80px - 45px); 
-    padding: 20px;
-    background-color: var(--main-bg-color);
-    color: var(--text-color);
-    overflow-y: auto;
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gradient-end);
 }
-/* Header and Footer modules should also use var(--bg-card) */
