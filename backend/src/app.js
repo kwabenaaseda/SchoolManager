@@ -5,7 +5,8 @@ import Systemrouter from "./routes/System/system.routes.js";
 import tenantrouter from "./routes/Tenants/tenants.routes.js";
 import { Logger } from "./utils/Logging.js"; // Import our consistent logger
 import errorMiddleware from "./middleware/errorHandler.js"; // New: Import Central Error Handler
-
+import os from 'os';
+import process from 'process';
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
 import swaggerOptions from "./config/swagger.config.js";
@@ -53,8 +54,52 @@ app.use(express.json()); // Parses application/json requests (APIs)
 app.use(express.urlencoded({ extended: true })); // Parses application/x-www-form-urlencoded requests (Forms)
 
 // 3. Health Check Route (Essential for Load Balancers/Containers)
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "OK", uptime: process.uptime() });
+app.get("/health", (req, res) => {try {
+    const uptime = process.uptime();
+    const memoryUsage = process.memoryUsage();
+    const systemMemory = os.totalmem();
+    const freeMemory = os.freemem();
+    
+    const healthData = {
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      uptime: {
+        seconds: uptime,
+      },
+      process: {
+        memory: {
+          rss: `${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB`,
+          heapTotal: `${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
+          heapUsed: `${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`,
+          external: `${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB`
+        },
+        pid: process.pid,
+        nodeVersion: process.version,
+        platform: process.platform
+      },
+      system: {
+        memory: {
+          total: `${(systemMemory / 1024 / 1024 / 1024).toFixed(2)} GB`,
+          free: `${(freeMemory / 1024 / 1024 / 1024).toFixed(2)} GB`,
+          used: `${((systemMemory - freeMemory) / 1024 / 1024 / 1024).toFixed(2)} GB`,
+          usagePercent: `${(((systemMemory - freeMemory) / systemMemory) * 100).toFixed(2)}%`
+        },
+        loadAverage: os.loadavg(),
+        cpus: os.cpus().length,
+        architecture: os.arch()
+      },
+      environment: process.env.NODE_ENV || 'development'
+    };
+
+    res.status(200).json(healthData);
+  } catch (error) {
+    Logger.error('SystemRouter', `Health check error: ${error.message}`);
+    res.status(500).json({ 
+      status: 'ERROR', 
+      message: 'Health check failed',
+      error: error.message 
+    });
+  }
 });
 
 // --- API ROUTES ---
