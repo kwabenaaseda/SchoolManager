@@ -1,6 +1,7 @@
 // Components/Footer/Footer.jsx
 import React from 'react'
 import style from './Footer.module.css'
+import { NavLink } from 'react-router-dom'
 
 const Footer = () => {
   return (
@@ -12,14 +13,14 @@ const Footer = () => {
         </div>
         <div className={style.footerSection}>
           <h4>Product</h4>
-          <a href="/docs">Documentation</a>
-          <a href="/about">Features</a>
-          <a href="/auth">Pricing</a>
+          <NavLink to="/docs">Documentation</NavLink>
+          <NavLink to="/about">Features</NavLink>
+          <NavLink to="/auth">Pricing</NavLink>
         </div>
         <div className={style.footerSection}>
           <h4>Company</h4>
-          <a href="/about">About</a>
-          <a href="/contact">Contact</a>
+          <NavLink to="/about">About</NavLink>
+          <NavLink to="/contact">Contact</NavLink>
         </div>
       </div>
       <div className={style.footerBottom}>

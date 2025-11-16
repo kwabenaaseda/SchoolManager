@@ -1,16 +1,28 @@
-// SystemMain.jsx - SIMPLIFIED BUT COMPLETE VERSION
+// SystemMain.jsx - UPDATED WITH REAL HEALTH METRICS
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { systemAuthService } from '../../../services/api/systemAuthService';
 import './SystemMain.css';
+import process from 'process';
+// Health monitoring service
+const healthService = {
+  async getSystemHealth() {
+    const baseURL = process.env.NODE_ENV === 'development' 
+      ? 'http://localhost:5000' 
+      : 'https://schoolmanager-rv9m.onrender.com';
+    
+    const response = await fetch(`${baseURL}/health`);
+    if (!response.ok) throw new Error('Health check failed');
+    return await response.json();
+  }
+};
 
 // Simplified but styled components
 const SimpleHeader = ({ user, systemHealth, onLogout, onRefreshHealth }) => {
   const getHealthColor = (status) => {
     switch (status) {
-      case 'healthy': return '#10b981';
-      case 'degraded': return '#f59e0b';
-      case 'critical': return '#ef4444';
+      case 'OK': return '#10b981';
+      case 'ERROR': return '#ef4444';
       default: return '#6b7280';
     }
   };
@@ -23,9 +35,11 @@ const SimpleHeader = ({ user, systemHealth, onLogout, onRefreshHealth }) => {
       padding: '16px 24px',
       background: '#1e293b',
       borderBottom: '1px solid #334155',
-      color: 'white'
+      color: 'white',
+      flexWrap: 'wrap',
+      gap: '16px'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
         <div style={{
           fontSize: '24px',
           background: 'linear-gradient(135deg, #6366f1, #3b82f6)',
@@ -38,12 +52,12 @@ const SimpleHeader = ({ user, systemHealth, onLogout, onRefreshHealth }) => {
         }}>
           ⚙️
         </div>
-        <h1 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+        <h1 style={{ margin: 0, fontSize: '20px', fontWeight: '600', whiteSpace: 'nowrap' }}>
           Vitalearn System Control
         </h1>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -51,18 +65,34 @@ const SimpleHeader = ({ user, systemHealth, onLogout, onRefreshHealth }) => {
           padding: '8px 16px',
           background: '#1e293b',
           border: '1px solid #334155',
-          borderRadius: '8px'
+          borderRadius: '8px',
+          flexShrink: 0
         }}>
           <div style={{
             width: '8px',
             height: '8px',
             borderRadius: '50%',
-            backgroundColor: getHealthColor(systemHealth.status)
+            backgroundColor: getHealthColor(systemHealth.status),
+            animation: systemHealth.status === 'OK' ? 'pulse 2s infinite' : 'none'
           }}></div>
-          <span>System: {systemHealth.status?.toUpperCase() || 'LOADING'}</span>
+          <span style={{ fontSize: '14px', whiteSpace: 'nowrap' }}>
+            Status: {systemHealth.status || 'LOADING'}
+          </span>
+          <button 
+            onClick={onRefreshHealth}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#64748b',
+              cursor: 'pointer',
+              padding: '4px'
+            }}
+          >
+            🔄
+          </button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
           <div style={{
             width: '36px',
             height: '36px',
@@ -77,11 +107,11 @@ const SimpleHeader = ({ user, systemHealth, onLogout, onRefreshHealth }) => {
           }}>
             {user?.first_name?.[0]}{user?.surname?.[0]}
           </div>
-          <div>
-            <div style={{ fontWeight: '600', fontSize: '14px' }}>
+          <div style={{ minWidth: '120px' }}>
+            <div style={{ fontWeight: '600', fontSize: '14px', whiteSpace: 'nowrap' }}>
               {user?.first_name} {user?.surname}
             </div>
-            <div style={{ fontSize: '12px', color: '#94a3b8' }}>
+            <div style={{ fontSize: '12px', color: '#94a3b8', whiteSpace: 'nowrap' }}>
               {user?.platform_role}
             </div>
           </div>
@@ -94,18 +124,32 @@ const SimpleHeader = ({ user, systemHealth, onLogout, onRefreshHealth }) => {
               padding: '8px 16px',
               borderRadius: '6px',
               cursor: 'pointer',
-              fontSize: '14px'
+              fontSize: '14px',
+              whiteSpace: 'nowrap'
             }}
           >
             Logout
           </button>
         </div>
       </div>
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        
+        @media (max-width: 768px) {
+          header {
+            padding: 12px 16px;
+          }
+        }
+      `}</style>
     </header>
   );
 };
 
-const SimpleSidebar = ({ currentPath }) => {
+const SimpleSidebar = ({ currentPath, isMobile, onMobileClose }) => {
   const navigate = useNavigate();
   
   const menuItems = [
@@ -118,18 +162,50 @@ const SimpleSidebar = ({ currentPath }) => {
 
   const isActive = (path) => currentPath.startsWith(path);
 
+  const handleItemClick = (path) => {
+    navigate(path);
+    if (isMobile && onMobileClose) {
+      onMobileClose();
+    }
+  };
+
   return (
     <aside style={{
-      width: '280px',
+      width: isMobile ? '100%' : '280px',
       background: '#1e293b',
-      borderRight: '1px solid #334155',
-      padding: '20px 0'
+      borderRight: isMobile ? 'none' : '1px solid #334155',
+      padding: isMobile ? '80px 20px 20px 20px' : '20px 0',
+      position: isMobile ? 'fixed' : 'relative',
+      top: 0,
+      left: 0,
+      height: isMobile ? '100vh' : 'auto',
+      zIndex: 1000,
+      overflowY: 'auto'
     }}>
+      {isMobile && (
+        <button 
+          onClick={onMobileClose}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            background: '#ef4444',
+            border: 'none',
+            color: 'white',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          ✕
+        </button>
+      )}
+      
       <nav>
         {menuItems.map(item => (
           <div
             key={item.id}
-            onClick={() => navigate(item.path)}
+            onClick={() => handleItemClick(item.path)}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -157,13 +233,94 @@ const SimpleSidebar = ({ currentPath }) => {
   );
 };
 
-const DashboardOverview = ({ user, systemHealth }) => {
-  const metrics = [
-    { title: 'Total Tenants', value: '12', subtitle: '10 active', icon: '🏫', color: '#3b82f6' },
-    { title: 'System Users', value: '45', subtitle: '42 active', icon: '👥', color: '#10b981' },
-    { title: 'Uptime', value: '99.9%', subtitle: 'This month', icon: '📈', color: '#8b5cf6' },
-    { title: 'Avg Response', value: '120ms', subtitle: 'API latency', icon: '⚡', color: '#f59e0b' },
-  ];
+// Progress Bar Component
+const ProgressBar = ({ percentage, color = '#3b82f6', label }) => (
+  <div style={{ marginBottom: '12px' }}>
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      marginBottom: '4px',
+      fontSize: '12px',
+      color: '#94a3b8'
+    }}>
+      <span>{label}</span>
+      <span>{percentage}%</span>
+    </div>
+    <div style={{
+      width: '100%',
+      height: '6px',
+      background: '#334155',
+      borderRadius: '3px',
+      overflow: 'hidden'
+    }}>
+      <div style={{
+        width: `${percentage}%`,
+        height: '100%',
+        background: color,
+        borderRadius: '3px',
+        transition: 'width 0.3s ease'
+      }}></div>
+    </div>
+  </div>
+);
+
+const DashboardOverview = ({ user, systemHealth, onRefreshHealth }) => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await onRefreshHealth();
+    setTimeout(() => setIsRefreshing(false), 1000);
+  };
+
+  // Calculate metrics from health data
+  const getMetrics = () => {
+    if (!systemHealth.system) {
+      return [
+        { title: 'System Status', value: 'Loading...', subtitle: 'Checking health', icon: '🔄', color: '#6b7280' },
+        { title: 'Uptime', value: '--', subtitle: 'Not available', icon: '⏱️', color: '#6b7280' },
+        { title: 'Memory Usage', value: '--', subtitle: 'Not available', icon: '💾', color: '#6b7280' },
+        { title: 'CPU Cores', value: '--', subtitle: 'Not available', icon: '⚡', color: '#6b7280' },
+      ];
+    }
+
+    const memoryUsage = parseFloat(systemHealth.system.memory.usagePercent);
+    const uptimeHours = Math.floor(systemHealth.uptime.seconds / 3600);
+    const uptimeMinutes = Math.floor((systemHealth.uptime.seconds % 3600) / 60);
+
+    return [
+      { 
+        title: 'System Status', 
+        value: systemHealth.status, 
+        subtitle: 'Server health', 
+        icon: systemHealth.status === 'OK' ? '✅' : '❌', 
+        color: systemHealth.status === 'OK' ? '#10b981' : '#ef4444' 
+      },
+      { 
+        title: 'Uptime', 
+        value: `${uptimeHours}h ${uptimeMinutes}m`, 
+        subtitle: 'Server runtime', 
+        icon: '⏱️', 
+        color: '#3b82f6' 
+      },
+      { 
+        title: 'Memory Usage', 
+        value: systemHealth.system.memory.usagePercent, 
+        subtitle: `Used: ${systemHealth.system.memory.used}`, 
+        icon: '💾', 
+        color: memoryUsage > 80 ? '#ef4444' : memoryUsage > 60 ? '#f59e0b' : '#10b981' 
+      },
+      { 
+        title: 'CPU Cores', 
+        value: systemHealth.system.cpus, 
+        subtitle: 'Available cores', 
+        icon: '⚡', 
+        color: '#8b5cf6' 
+      },
+    ];
+  };
+
+  const metrics = getMetrics();
 
   return (
     <div style={{ 
@@ -177,12 +334,14 @@ const DashboardOverview = ({ user, systemHealth }) => {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: '24px'
+        marginBottom: '24px',
+        flexWrap: 'wrap',
+        gap: '16px'
       }}>
         <div>
           <h1 style={{ 
             margin: '0 0 8px 0',
-            fontSize: '28px',
+            fontSize: 'clamp(24px, 4vw, 28px)',
             fontWeight: '700',
             background: 'linear-gradient(135deg, #6366f1, #3b82f6)',
             WebkitBackgroundClip: 'text',
@@ -190,32 +349,30 @@ const DashboardOverview = ({ user, systemHealth }) => {
           }}>
             Welcome back, {user.first_name}!
           </h1>
-          <p style={{ margin: 0, color: '#94a3b8', fontSize: '16px' }}>
+          <p style={{ margin: 0, color: '#94a3b8', fontSize: 'clamp(14px, 2vw, 16px)' }}>
             System Administrator Dashboard
           </p>
         </div>
-      </div>
-
-      {/* Health Status */}
-      <div style={{
-        background: '#1e293b',
-        border: '1px solid #334155',
-        borderRadius: '12px',
-        padding: '16px 20px',
-        marginBottom: '24px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px'
-      }}>
-        <div style={{
-          width: '12px',
-          height: '12px',
-          borderRadius: '50%',
-          backgroundColor: systemHealth.status === 'healthy' ? '#10b981' : '#f59e0b'
-        }}></div>
-        <span style={{ color: '#f1f5f9' }}>
-          System Status: <strong>{systemHealth.status?.toUpperCase() || 'LOADING'}</strong>
-        </span>
+        
+        <button 
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          style={{
+            background: isRefreshing ? '#64748b' : '#3b82f6',
+            border: 'none',
+            color: 'white',
+            padding: '10px 20px',
+            borderRadius: '8px',
+            cursor: isRefreshing ? 'not-allowed' : 'pointer',
+            fontSize: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            opacity: isRefreshing ? 0.7 : 1
+          }}
+        >
+          {isRefreshing ? '🔄 Refreshing...' : '🔄 Refresh Data'}
+        </button>
       </div>
 
       {/* Metrics Grid */}
@@ -228,13 +385,14 @@ const DashboardOverview = ({ user, systemHealth }) => {
         {metrics.map((metric, index) => (
           <div key={index} style={{
             background: '#1e293b',
-            border: '1px solid #334155',
+            border: `1px solid ${metric.color}30`,
             borderRadius: '12px',
             padding: '20px',
             display: 'flex',
             alignItems: 'center',
             gap: '16px',
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s ease',
+            boxShadow: `0 4px 12px ${metric.color}10`
           }}>
             <div style={{
               fontSize: '32px',
@@ -248,9 +406,9 @@ const DashboardOverview = ({ user, systemHealth }) => {
             }}>
               {metric.icon}
             </div>
-            <div>
+            <div style={{ flex: 1 }}>
               <div style={{
-                fontSize: '32px',
+                fontSize: 'clamp(24px, 3vw, 32px)',
                 fontWeight: '700',
                 color: '#f1f5f9',
                 marginBottom: '4px'
@@ -278,21 +436,68 @@ const DashboardOverview = ({ user, systemHealth }) => {
       {/* Content Area */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 400px',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
         gap: '24px'
       }}>
-        {/* Left Column */}
-        <div>
+        {/* System Details */}
+        <div style={{
+          background: '#1e293b',
+          border: '1px solid #334155',
+          borderRadius: '12px',
+          padding: '20px'
+        }}>
+          <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600' }}>
+            📊 System Performance
+          </h3>
+          
+          {systemHealth.system && (
+            <div>
+              <ProgressBar 
+                percentage={parseFloat(systemHealth.system.memory.usagePercent)} 
+                color={parseFloat(systemHealth.system.memory.usagePercent) > 80 ? '#ef4444' : '#3b82f6'}
+                label={`Memory Usage (${systemHealth.system.memory.used} of ${systemHealth.system.memory.total})`}
+              />
+              
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
+                gap: '16px',
+                marginTop: '20px'
+              }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>CPU Cores</div>
+                  <div style={{ fontSize: '20px', fontWeight: '600', color: '#f1f5f9' }}>
+                    {systemHealth.system.cpus}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>Architecture</div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#f1f5f9' }}>
+                    {systemHealth.system.architecture}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>Platform</div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#f1f5f9' }}>
+                    {systemHealth.process.platform}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Quick Actions & Alerts */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Quick Actions */}
           <div style={{
             background: '#1e293b',
             border: '1px solid #334155',
             borderRadius: '12px',
-            padding: '20px',
-            marginBottom: '24px'
+            padding: '20px'
           }}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>
-              Quick Actions
+              🚀 Quick Actions
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button style={{
@@ -302,7 +507,8 @@ const DashboardOverview = ({ user, systemHealth }) => {
                 padding: '12px 16px',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                textAlign: 'left'
+                textAlign: 'left',
+                transition: 'all 0.2s ease'
               }}>
                 + Register New Tenant
               </button>
@@ -313,7 +519,8 @@ const DashboardOverview = ({ user, systemHealth }) => {
                 padding: '12px 16px',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                textAlign: 'left'
+                textAlign: 'left',
+                transition: 'all 0.2s ease'
               }}>
                 + Add System User
               </button>
@@ -324,17 +531,15 @@ const DashboardOverview = ({ user, systemHealth }) => {
                 padding: '12px 16px',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                textAlign: 'left'
+                textAlign: 'left',
+                transition: 'all 0.2s ease'
               }}>
-                View System Logs
+                📋 View System Logs
               </button>
             </div>
           </div>
-        </div>
 
-        {/* Right Column */}
-        <div>
-          {/* Alerts Panel */}
+          {/* System Info */}
           <div style={{
             background: '#1e293b',
             border: '1px solid #334155',
@@ -342,30 +547,38 @@ const DashboardOverview = ({ user, systemHealth }) => {
             padding: '20px'
           }}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>
-              System Alerts
+              ℹ️ System Information
             </h3>
-            <div style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '12px',
-              padding: '12px',
-              background: '#78350f',
-              borderRadius: '8px',
-              borderLeft: '4px solid #f59e0b'
-            }}>
-              <span>⚠️</span>
-              <div>
-                <strong style={{ display: 'block', marginBottom: '4px' }}>
-                  System Update Available
-                </strong>
-                <p style={{ margin: 0, fontSize: '13px', color: '#cbd5e1' }}>
-                  New platform version 2.1.0 is ready for deployment
-                </p>
+            {systemHealth.process && (
+              <div style={{ fontSize: '12px', color: '#94a3b8', lineHeight: '1.5' }}>
+                <div>Node: {systemHealth.process.nodeVersion}</div>
+                <div>PID: {systemHealth.process.pid}</div>
+                <div>Environment: {systemHealth.environment}</div>
+                <div>Last Update: {new Date(systemHealth.timestamp).toLocaleTimeString()}</div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Responsive Media Queries */}
+      <style>{`
+        @media (max-width: 768px) {
+          .dashboard-content {
+            grid-template-columns: 1fr;
+          }
+          
+          .metrics-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .dashboard-overview {
+            padding: 16px;
+          }
+        }
+      `}</style>
     </div>
   );
 };
@@ -380,10 +593,36 @@ const PlaceholderPage = ({ title }) => (
 
 const SystemMain = () => {
   const [user, setUser] = useState(null);
-  const [systemHealth, setSystemHealth] = useState({ status: 'loading' });
+  const [systemHealth, setSystemHealth] = useState({});
   const [loading, setLoading] = useState(true);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Handle responsive layout
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setShowMobileSidebar(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const loadHealthData = async () => {
+    try {
+      const health = await healthService.getSystemHealth();
+      setSystemHealth(health);
+    } catch (error) {
+      console.error('Health check failed:', error);
+      setSystemHealth({ status: 'ERROR', message: 'Health check failed' });
+    }
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -397,9 +636,7 @@ const SystemMain = () => {
         setLoading(true);
         const userData = await systemAuthService.getCurrentUser();
         setUser(userData);
-        
-        const health = await systemAuthService.getSystemHealth();
-        setSystemHealth(health.data || health);
+        await loadHealthData();
       } catch (error) {
         console.error('Auth check failed:', error);
         localStorage.removeItem('system_access_token');
@@ -410,6 +647,10 @@ const SystemMain = () => {
     };
 
     checkAuth();
+
+    // Refresh health data every 30 seconds
+    const interval = setInterval(loadHealthData, 30000);
+    return () => clearInterval(interval);
   }, [navigate]);
 
   const handleLogout = async () => {
@@ -458,20 +699,61 @@ const SystemMain = () => {
         user={user}
         systemHealth={systemHealth}
         onLogout={handleLogout}
-        onRefreshHealth={() => {}}
+        onRefreshHealth={loadHealthData}
+        onToggleSidebar={() => setShowMobileSidebar(!showMobileSidebar)}
       />
       
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        <SimpleSidebar currentPath={location.pathname} />
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative' }}>
+        {/* Mobile Sidebar Overlay */}
+        {(showMobileSidebar || !isMobile) && (
+          <SimpleSidebar 
+            currentPath={location.pathname}
+            isMobile={isMobile}
+            onMobileClose={() => setShowMobileSidebar(false)}
+          />
+        )}
         
-        <main style={{ flex: 1, overflow: 'auto' }}>
+        {/* Mobile Overlay */}
+        {isMobile && showMobileSidebar && (
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 999
+            }}
+            onClick={() => setShowMobileSidebar(false)}
+          />
+        )}
+        
+        <main style={{ 
+          flex: 1, 
+          overflow: 'auto',
+          marginLeft: isMobile ? 0 : '280px',
+          transition: 'margin-left 0.3s ease'
+        }}>
           <Routes>
-            <Route path="/dashboard" element={<DashboardOverview user={user} systemHealth={systemHealth} />} />
-            <Route path="/tenants" element={<PlaceholderPage title="Tenant Management" />} />
-            <Route path="/users" element={<PlaceholderPage title="User Administration" />} />
-            <Route path="/monitoring" element={<PlaceholderPage title="System Monitoring" />} />
-            <Route path="/audit" element={<PlaceholderPage title="Audit & Security" />} />
-            <Route path="/" element={<DashboardOverview user={user} systemHealth={systemHealth} />} />
+            <Route path="/dashboard" element={
+              <DashboardOverview 
+                user={user} 
+                systemHealth={systemHealth} 
+                onRefreshHealth={loadHealthData}
+              />
+            } />
+            <Route path="/tenants" element={<PlaceholderPage title="🏫 Tenant Management" />} />
+            <Route path="/users" element={<PlaceholderPage title="👥 User Administration" />} />
+            <Route path="/monitoring" element={<PlaceholderPage title="📡 System Monitoring" />} />
+            <Route path="/audit" element={<PlaceholderPage title="🔒 Audit & Security" />} />
+            <Route path="/" element={
+              <DashboardOverview 
+                user={user} 
+                systemHealth={systemHealth} 
+                onRefreshHealth={loadHealthData}
+              />
+            } />
           </Routes>
         </main>
       </div>
