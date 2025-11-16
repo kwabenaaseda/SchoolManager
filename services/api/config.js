@@ -13,7 +13,7 @@ export const API_CONFIG = {
     register: '/system/system-user/create',
     health: '/system/system-health',
     users: '/system/system-users',
-    userProfile: '/system/system-user'
+    userProfile: '/system/system-user/profile/me'
   },
   
   // Tenant API endpoints  

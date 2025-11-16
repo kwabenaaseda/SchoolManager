@@ -21,14 +21,16 @@ dotenv.config({
 const allowedOrigins =
   process.env.NODE_ENV === "development"
     ? [
+        "http://localhost:5173",
         "http://localhost:5000",
         "http://127.0.0.1:5000",
-        "http://localhost:5173",
+
         // Add specific development ports here. Avoid generic or unknown ports.
       ]
     : [
+        "http://localhost:5173",
         // List your production front-end domains here (e.g., 'https://your-app-frontend.com')
-        "https://vitalearn.netlify.app"
+        "https://vitalearn.netlify.app",
       ];
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions);

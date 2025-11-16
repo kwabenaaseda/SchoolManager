@@ -28,7 +28,7 @@ const Header = () => {
     const handleKeyPress = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault()
-        navigate('/auth?access=developer')
+        navigate('/auth?redirect=system')
       }
     }
 
@@ -39,7 +39,7 @@ const Header = () => {
   const handleAuthClick = (e) => {
     if (e.ctrlKey || e.metaKey) {
       e.preventDefault()
-      navigate('/auth?access=developer')
+      navigate('/auth?redirect=system')
       return
     }
     navigate('/auth')
@@ -50,7 +50,7 @@ const Header = () => {
     setSystemAccessClicks(newCount)
 
     if (newCount >= 3) {
-      navigate('/auth?access=developer')
+      navigate('/auth?redirect=system')
       setSystemAccessClicks(0)
     } else {
       navigate('/auth')

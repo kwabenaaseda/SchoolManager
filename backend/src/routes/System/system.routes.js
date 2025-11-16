@@ -10,6 +10,7 @@ import {
   Refresh_Token,
   Get_User_Profile,
   List_System_Users,
+  Get_Current_User_Profile,
 } from "../../controllers/System/SystemUserManager.controller.js";
 import { Get_System_Health } from "../../controllers/System/SystemHealth_Audit.controller.js";
 import { All_Tenants, Create_New_Tenant, Tenant_Details } from "../../controllers/System/tenantLifeCycle.controller.js";
@@ -324,6 +325,7 @@ Systemrouter.get("/system-users", Firewall, List_System_Users);
  *         description: List of system users retrieved successfully
  */
 Systemrouter.get("/system-user/:userId", Firewall, Get_User_Profile);
+Systemrouter.get("/system-user/profile/me", Firewall, Get_Current_User_Profile);
 
 /**
  * @swagger

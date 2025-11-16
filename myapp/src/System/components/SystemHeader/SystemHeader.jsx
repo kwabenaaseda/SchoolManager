@@ -5,7 +5,6 @@ import './SystemHeader.css';
 const SystemHeader = ({ 
   user, 
   systemHealth, 
-  notifications, 
   onLogout, 
   onRefreshHealth, 
   sidebarCollapsed, 
@@ -56,13 +55,6 @@ const SystemHeader = ({
       </div>
 
       <div className="header-right">
-        <div className="notification-bell">
-          <span className="bell-icon">🔔</span>
-          {notifications.length > 0 && (
-            <span className="notification-count">{notifications.length}</span>
-          )}
-        </div>
-        
         <div className="user-menu">
           <div className="user-avatar">
             {user?.first_name?.[0]}{user?.surname?.[0]}
@@ -71,16 +63,9 @@ const SystemHeader = ({
             <span className="user-name">{user?.first_name} {user?.surname}</span>
             <span className="user-role">{user?.platform_role}</span>
           </div>
-          <div className="dropdown-arrow">▼</div>
-          
-          <div className="user-dropdown">
-            <button className="dropdown-item">Profile Settings</button>
-            <button className="dropdown-item">Security</button>
-            <div className="dropdown-divider"></div>
-            <button className="dropdown-item logout-btn" onClick={onLogout}>
-              Logout
-            </button>
-          </div>
+          <button className="logout-btn" onClick={onLogout}>
+            Logout
+          </button>
         </div>
       </div>
     </header>

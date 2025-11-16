@@ -1,5 +1,6 @@
 import React from 'react'
 import style from '../Components/Style/Page.module.css';
+import { NavLink } from 'react-router-dom';
 
 const About = () => {
   return (
@@ -114,8 +115,8 @@ const About = () => {
         <h2>Ready to Join the Future of Education?</h2>
         <p>Transform your institution with our distributed learning platform</p>
         <div className={style.ctaButtons}>
-          <a href="/auth" className={style.primaryCta}>Start Your Application</a>
-          <a href="/contact" className={style.secondaryCta}>Schedule a Demo</a>
+          <NavLink to="/auth" className={style.primaryCta}>Start Your Application</NavLink>
+          <NavLink to="/contact" className={style.secondaryCta}>Schedule a Demo</NavLink>
         </div>
       </section>
     </div>

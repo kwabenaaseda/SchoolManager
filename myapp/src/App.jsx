@@ -11,7 +11,7 @@ function App() {
 
       <Route path="/*" element={<Web_main/>}/>
       <Route path="/admin/*" element={<Admin_main/>} />
-      <Route path="/system-user/*" element={<SystemMain/>} />
+      <Route path="/system/*" element={<SystemMain/>} />
       <Route path="*" element={<h1>404 - Page Not Found</h1>} />
     </Routes>
   );

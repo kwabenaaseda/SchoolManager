@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const ACCESS_AUTH_EXPIRES = "15m";
+const ACCESS_AUTH_EXPIRES = "30m";
 const REFRESH_AUTH_EXPIRES = "7d";
 const AUTHENTICATION_EXPIRES = "5m";
 

@@ -262,6 +262,36 @@ const _Get_User_Profile = async (req, res) => {
   });
 };
 export const Get_User_Profile = controllerWrapper(_Get_User_Profile);
+/**
+ * ===============================================================
+ * GET CURRENT USER PROFILE (Requires Authentication)
+ * ===============================================================
+ */
+const _Get_Current_User_Profile = async (req, res) => {
+  // req.user.id is populated by the authentication middleware
+  Logger.debug(
+    _Get_User_Profile.name,
+    `Fetching profile for user ID: ${req.user._id}`
+  );
+
+  const userId = req.user._id;
+
+  const user = await SystemUser.findById(userId).select("-password"); // Exclude password hash
+
+  if (!user) {
+    throw {
+      statusCode: 404,
+      message: `User with ID ${userId} not found.`,
+      name: "NotFoundError",
+    };
+  }
+
+  return sendSuccessResponse(res, {
+    successMessage: "User profile fetched successfully.",
+    data: user,
+  });
+};
+export const Get_Current_User_Profile = controllerWrapper(_Get_Current_User_Profile);
 
 /**
  * ===============================================================
@@ -427,3 +457,5 @@ const _List_System_Users = async (req, res) => {
 };
 
 export const List_System_Users = controllerWrapper(_List_System_Users);
+
+

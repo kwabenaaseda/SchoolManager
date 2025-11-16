@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, NavLink } from "react-router-dom";
 import style from "../Components/Style/Page.module.css";
 import { systemAuthService } from "../../../../services/api/systemAuthService";
 import { tenantAuthService } from "../../../../services/api/tenantAuthService";
@@ -544,7 +544,7 @@ const Auth = () => {
             </div>
 
             <div className={style.welcomeFooter}>
-              <p>Need help deciding? <a href="/contact">Contact our team</a></p>
+              <p>Need help deciding? <NavLink href="/contact">Contact our team</NavLink></p>
               
               {!showSystemAccess && (
                 <p className={style.systemAccessHint}>
