@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import style from "../Components/Style/Page.module.css";
-import { systemAuthService } from "../../services/api/systemAuthService";
-import { tenantAuthService } from "../../services/api/tenantAuthService";
-import { buildApiUrl, API_CONFIG } from "../../services/api/config";
+import { systemAuthService } from "../../../../services/api/systemAuthService";
+import { tenantAuthService } from "../../../../services/api/tenantAuthService";
+import { buildApiUrl, API_CONFIG } from "../../../../services/api/config";
 
 
 // ----------------------------------------------------
@@ -148,7 +148,7 @@ const AuthForm = ({ operation, onBack }) => {
       let result;
       
       if (operation === 'SCHOOL_SIGNUP') {
-        // Create new tenant (school registration) - using environment-aware URL
+        // Create new tenant (school registration)
         const response = await fetch(buildApiUrl(API_CONFIG.system.tenant), {
           method: 'POST',
           headers: {
@@ -165,29 +165,26 @@ const AuthForm = ({ operation, onBack }) => {
         result = await response.json();
         console.log('School registration successful:', result);
         
-        // After successful registration, show success message
         alert('School registered successfully! You can now login with your credentials.');
-        onBack(); // Go back to main auth page
+        onBack();
         
       } else if (operation === 'TENANT_LOGIN') {
-        // Tenant user login - using tenant auth service
+        // Tenant user login
         result = await tenantAuthService.login(formData);
         console.log('Tenant login successful:', result);
         
-        // Store tenant token and redirect
         if (result.data?.accessToken) {
           localStorage.setItem('tenant_access_token', result.data.accessToken);
           localStorage.setItem('user_role', result.data.role);
           localStorage.setItem('tenant_id', result.data.tenantId);
-          navigate('/admin/dashboard'); // Redirect to tenant admin dashboard
+          navigate('/admin/dashboard');
         }
         
       } else if (operation === 'SYSTEM_LOGIN') {
-        // System user login - using system auth service
+        // System user login
         result = await systemAuthService.login(formData);
         console.log('System login successful:', result);
         
-        // Store system token and redirect to system dashboard
         if (result.data?.accessToken) {
           localStorage.setItem('system_access_token', result.data.accessToken);
           localStorage.setItem('user_role', result.data.platformRole);
@@ -195,11 +192,10 @@ const AuthForm = ({ operation, onBack }) => {
         }
         
       } else if (operation === 'SYSTEM_SIGNUP') {
-        // System user registration - using system auth service
+        // System user registration
         result = await systemAuthService.register(formData);
         console.log('System user registration successful:', result);
         
-        // After successful registration, automatically log them in
         if (result.data?.accessToken) {
           localStorage.setItem('system_access_token', result.data.accessToken);
           localStorage.setItem('user_role', result.data.platformRole);
@@ -214,6 +210,136 @@ const AuthForm = ({ operation, onBack }) => {
     }
   };
 
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const isSystemOperation = operation.includes('SYSTEM');
+  const isRegistration = operation.includes('SIGNUP');
+
+  return (
+    <div className={style.authFlowContainer}>
+      <div className={style.authHeader}>
+        <button onClick={onBack} className={style.backButton}>
+          ← Back to Options
+        </button>
+        <div className={`${style.authIcon} ${isSystemOperation ? style.systemIcon : ''}`}>
+          {content.Contentdata.icon}
+        </div>
+        <h2>{content.Contentdata.title}</h2>
+        <p>{content.Contentdata.subtitle}</p>
+        
+        {isSystemOperation && (
+          <div className={style.securityBadge}>
+            🔒 {isRegistration ? 'Secure Registration' : 'System-Level Access'}
+          </div>
+        )}
+      </div>
+
+      {error && (
+        <div className={style.errorMessage}>
+          <span className={style.errorIcon}>⚠️</span>
+          {error}
+        </div>
+      )}
+
+      {isSystemOperation && isRegistration && (
+        <div className={style.registrationNotice}>
+          <h4>🔐 Secure Registration Required</h4>
+          <p>You need a valid registration code provided by the platform administrator to create a system account.</p>
+        </div>
+      )}
+
+      <div className={style.authFormWrapper}>
+        <form onSubmit={handleSubmit} className={style.authForm}>
+          {content.formFields.map((field, index) => (
+            <div key={index} className={style.formField}>
+              <label className={style.inputLabel}>
+                {field.placeholder}
+                {field.required && <span className={style.required}> *</span>}
+              </label>
+              {field.type === 'select' ? (
+                <select
+                  className={style.authInput}
+                  onChange={(e) => handleInputChange(field.value, e.target.value)}
+                  required={field.required}
+                  value={formData[field.value] || ''}
+                >
+                  <option value="">Select {field.placeholder}</option>
+                  {field.options.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type={field.type}
+                  placeholder={field.placeholder}
+                  className={style.authInput}
+                  onChange={(e) => handleInputChange(field.value, e.target.value)}
+                  required={field.required}
+                  value={formData[field.value] || ''}
+                  disabled={loading}
+                />
+              )}
+            </div>
+          ))}
+          
+          <button 
+            type="submit" 
+            className={`${style.authSubmitButton} ${isSystemOperation ? style.systemSubmitButton : ''}`}
+            disabled={loading}
+          >
+            {loading ? 'Processing...' : content.Contentdata.buttonName}
+          </button>
+        </form>
+
+        <div className={style.authFeatures}>
+          <h4>Access Includes:</h4>
+          <ul>
+            {content.Contentdata.features.map((feature, index) => (
+              <li key={index}>
+                <span className={style.featureIcon}>✓</span> 
+                {feature}
+              </li>
+            ))}
+          </ul>
+          
+          {isSystemOperation && (
+            <div className={style.systemAccessNote}>
+              <p>🔍 All activities are audited</p>
+              <p>📝 Comprehensive logging enabled</p>
+              <p>🚨 Security monitoring active</p>
+              {isRegistration && (
+                <p>🔑 Registration code verification required</p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className={style.authFooter}>
+        {!isSystemOperation && (
+          <button 
+            onClick={() => alert('Password reset flow would be initiated here')} 
+            className={style.authLink}
+          >
+            Forgot your credentials?
+          </button>
+        )}
+        <p className={style.authNote}>
+          {operation === 'SCHOOL_SIGNUP' 
+            ? 'By registering, you agree to our Terms of Service and Privacy Policy'
+            : operation === 'SYSTEM_SIGNUP'
+            ? 'System registration requires valid registration code and security clearance'
+            : isSystemOperation
+            ? 'System access requires multi-factor authentication and security clearance'
+            : 'Secure login with multi-tenant data isolation'
+          }
+        </p>
+      </div>
+    </div>
+  );
+};
 
 // Enhanced Card Component with System Access
 const EnhancedCard = ({ operationType, Contentdata, setFlow }) => {
