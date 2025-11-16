@@ -12,7 +12,7 @@ import {
   List_System_Users,
 } from "../../controllers/System/SystemUserManager.controller.js";
 import { Get_System_Health } from "../../controllers/System/SystemHealth_Audit.controller.js";
-import { Create_New_Tenant } from "../../controllers/System/tenantLifeCycle.controller.js";
+import { All_Tenants, Create_New_Tenant, Tenant_Details } from "../../controllers/System/tenantLifeCycle.controller.js";
 
 // -------------------
 // START SWAGGER DOCUMENTATION - SYSTEM ROUTES
@@ -152,9 +152,7 @@ Systemrouter.post("/tenant", Firewall, Create_New_Tenant);
  *                         type: string
  *                         format: date-time
  */
-Systemrouter.get("/tenants", (req, res) => {
-  res.send({ message: "SYSTEM: List all Tenants" });
-});
+Systemrouter.get("/tenants",Firewall,All_Tenants);
 
 /**
  * @swagger
@@ -176,11 +174,7 @@ Systemrouter.get("/tenants", (req, res) => {
  *       404:
  *         description: Tenant not found
  */
-Systemrouter.get("/tenant/:tenantId", (req, res) => {
-  res.send({
-    message: `SYSTEM: Get detailed status for Tenant ${req.params.tenantId}`,
-  });
-});
+Systemrouter.get("/tenant/:tenantId",Firewall,Tenant_Details);
 
 /**
  * @swagger

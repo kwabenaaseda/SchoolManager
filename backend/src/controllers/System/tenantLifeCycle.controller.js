@@ -18,6 +18,7 @@ import Announcement from "../../models/TENANTS/Announcement/Announcement.js"; //
 import GeneralContent from "../../models/TENANTS/Components/GeneralContent.js"; // For initial content
 import Permission from "../../models/TENANTS/Permission.js"; // For initial Admin role permissions
 import STAFF from "../../models/TENANTS/users/Staff.User.js";
+import OWNER from "../../models/TENANTS/rootUser.js";
 
 /**
  * ===============================================================
@@ -191,7 +192,9 @@ const _Create_New_Tenant = async (req, res) => {
     );
 
     // 5d. Create Initial Finance Document
-    await MainFinance.create([{ Tenant: tenantId,rootUser:RootUserId }], { session: session }); // Uses model defaults
+    await MainFinance.create([{ Tenant: tenantId, rootUser: RootUserId }], {
+      session: session,
+    }); // Uses model defaults
 
     // 5e. Create Initial Content/Announcement (Optional, but friendly!)
     await Announcement.create(
@@ -252,7 +255,47 @@ export const Create_New_Tenant = controllerWrapper(_Create_New_Tenant);
  * ===============================================================
  */
 const _Tenant_Details = async (req, res) => {
-  Logger.info(_Tenant_Details.name,"Attempting Fetching Details for Tenant :"+req.params.tenantId)
-  const {tenantId} = req.params
+  Logger.info(
+    _Tenant_Details.name,
+    "Attempting Fetching Details for Tenant :" + req.params.tenantId
+  );
+  const { tenantId } = req.params;
+  const user = await Tenant.findById(tenantId);
+  if (!user) {
+    throw {
+      statusCode: 404,
+      message: `User with ID ${tenantId} not found.`,
+      name: "NotFoundError",
+    };
+  }
+  const owner = await User.find({ tenantId: user._id });
+  const info = {
+    TenantData: user,
+    TenantOwner: owner,
+  };
+  return sendSuccessResponse(res, {
+    successMessage: "User profile fetched successfully.",
+    data: info,
+  });
 };
 export const Tenant_Details = controllerWrapper(_Tenant_Details);
+
+/**
+ * ================================================================
+ * GET ALL TENANTS CORE LOGIC
+ * This function fetches all the Tenants on the system as well as thier owner details {name and email}
+ * ================================================================
+ */
+
+const _All_Tenants = async (req, res) => {
+  Logger.info(_All_Tenants.name, "Attempting to Fetch All Tenant Details");
+
+  const tenants = await Tenant.find();
+
+  return sendSuccessResponse(res, {
+    successMessage: `Successfully retrieved ${tenants.length} System Users.`,
+    data: tenants,
+  });
+};
+
+export const All_Tenants = controllerWrapper(_All_Tenants);
