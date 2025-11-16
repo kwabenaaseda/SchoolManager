@@ -97,7 +97,7 @@ import { All_Tenants, Create_New_Tenant, Tenant_Details } from "../../controller
  *       409:
  *         description: Tenant domain already exists
  */
-Systemrouter.post("/tenant", Firewall, Create_New_Tenant);
+Systemrouter.post("/tenant", Create_New_Tenant);
 
 /**
  * @swagger
